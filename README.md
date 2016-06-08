@@ -8,4 +8,5 @@ on a short self-study "course" I supervised at the University of
 Cambridge in summer 2016.
 
 You will probably want to use jupyter with notedown installed as the
-md files will be directly usable as jupyter notebooks.
+org files can be converted to md with pandoc will be directly usable
+as jupyter notebooks.
