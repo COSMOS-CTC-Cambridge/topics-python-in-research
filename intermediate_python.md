@@ -64,6 +64,17 @@ mat1=numpy.matrix(numpy.random.random((3,4)))
 mat2=numpy.matrix(numpy.random.random((4,3)))
 colvec=numpy.matrix(numpy.random.random((1,3)))
 rowvec=numpy.matrix(numpy.random.random((3,1)))
+```
+
+-   You can also check some details about a numpy array easily
+
+``` {.python}
+print colvec.flags
+print rowvec.nbytes, rowvec.size
+print rowvec.shape, rowvec.reshape(1,3).shape
+```
+
+``` {.python}
 print mat, mat**2, rowvec, colvec
 print colvec*mat1, mat2*colvec.T, mat2*rowvec
 print mat1*colvec # this raises ValueError: (3,4) matrix cannot be multipied from the left by (1,3) matrix
@@ -76,7 +87,7 @@ print mat1*colvec # this raises ValueError: (3,4) matrix cannot be multipied fro
 arrayvec=numpy.random.random((3))
 print arrayvec, arrayvec.T 
 print arrayvec*mat1
-print mat2*arrayvec
+print mat2*arrayvec # gives an error
 ```
 
 writing efficient numpy code
@@ -244,6 +255,11 @@ writing efficient numpy code
 -   and down to a healthy **0.005 s**
 -   speedup compared to original code is now **1900x**
 -   even compared to the vectorised pure python, it is **10x**
+
+### compiling with cython outside of python
+
+-   save the code into a file (complicated to arrange in a jupyter notebook, so get `profiling.pyx` and `setup.py` from the repo and place in the right directory
+-   run `python setup.py build_ext --inplace` to get a module called `profiling` you can import
 -   Profiling
 -   we already know cProfile, but let's see what it gives in a more complicated example
 
@@ -285,7 +301,120 @@ more complicated cProfile
 ```
 
 -   unfortunately, profiling creates overhead so now our code is now a bit slower
--   turn profiling off for production
+-   for small functions, this overhead is enough to misguide you
+
+``` {.python}
+def recip_square(i):
+    return 1./i**2
+
+def approx_pi(n=10000000):
+    val = 0.
+    for k in range(1,n+1):
+        val += recip_square(k)
+    return (6 * val)**.5
+
+cp=cProfile.Profile()
+cp.runcall(approx_pi)
+cp.print_stats(sort="time")
+```
+
+-   note how the `cumtime` and `tottime` work: the `cumtime` of a function equals its `tottime` plus the `cumtime` of any of its callees
+-   before cythoninsing, let's make one change
+
+``` {.python}
+def recip_square(i):
+    return 1./i**2
+
+def approx_pi(n=10000000):
+    val = 0.
+    for k in xrange(1,n+1):
+        val += recip_square(k)
+    return (6 * val)**.5
+
+cp=cProfile.Profile()
+cp.runcall(approx_pi)
+cp.print_stats(sort="time")
+```
+
+-   we got the `xrange` fall below the radar, where `range` took a significant amount of time!
+-   now we cythonise
+-   cython will turn `**` into a call to `pow()` which is bad, so we remove that
+-   this forces us to change `int i` into `long i` lest we get integer overflows!
+
+``` {.python}
+%%cython
+import cython
+@cython.profile(True)
+def recip_square(int i):
+    return 1./(i*i)
+@cython.profile(True)
+def approx_pi(int n=10000000):
+    cdef double val = 0.
+    cdef int k
+    for k in xrange(1,n+1):
+        val += recip_square(k)
+    return (6 * val)**.5
+```
+
+``` {.python}
+cp=cProfile.Profile()
+cp.runcall(approx_pi)
+cp.print_stats(sort="time")
+```
+
+-   without `@cython.profile(True)` we'd only see the `{_cython_magic_6246327bdc7da2785b99c8775b1bdbc3.approx_pi}` line
+-   now the crucial point about small functions: the `tottime` of `approx_pi` is "wrong" as it includes time spent setting up profiling for recip<sub>square</sub>!
+-   so to see the real time `approx_pi` takes, we turn off profiling from `recip_square`:
+
+``` {.python}
+%%cython
+import cython
+@cython.profile(False)
+def recip_square(long i):
+    return 1./(i*i)
+@cython.profile(True)
+def approx_pi(long n=10000000):
+    cdef double val = 0.
+    cdef long k
+    for k in xrange(1,n+1):
+        val += recip_square(k)
+    return (6 * val)**.5
+```
+
+``` {.python}
+cp=cProfile.Profile()
+cp.runcall(approx_pi)
+cp.print_stats(sort="time")
+```
+
+-   This is a problem with profiling: the overheads of setting up profiling of an oft-called function will give the wrong impression of how much time the *caller* takes.
+-   two more useful tricks: inlining and defining a pure-C function (not directly callable from python)
+
+``` {.python}
+%%cython
+import cython
+cimport cython
+
+@cython.profile(False)
+cdef inline double recip_square(long i):
+    return 1./(i*i)
+
+@cython.profile(True)
+def approx_pi(long n=10000000):
+    cdef double val = 0.
+    cdef long k
+    for k in xrange(1,n+1):
+        val += recip_square(k)
+    return (6 * val)**.5
+```
+
+``` {.python}
+cp=cProfile.Profile()
+cp.runcall(approx_pi)
+cp.print_stats(sort="time")
+```
+
+-   Profiling adds a generic performance penatly, so turn profiling off for production
 
 -   Debugging
 
