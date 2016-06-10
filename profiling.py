@@ -1,12 +1,17 @@
+#cython: profile=True
 import numpy
 import cProfile
+import cython
 
+@cython.profile(True)
 def afunc(x):
     return x*x
 
+@cython.profile(True)
 def bfunc(x, y):
     return afunc(x)+y
 
+@cython.profile(True)
 def cfunc(x, y, z):
     return afunc(x)+bfunc(y,z)
 
