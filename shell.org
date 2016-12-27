@@ -365,3 +365,20 @@ find exampledirectory12 -name 'example*1' -print0 |xargs -0 ls -l
 - examples, with last one taking forever to compile because the file
   is so big (but no -ipo as that will take long even with modular
   code): how to sort that out
+  
+  ** Appendix I: Key Commands
+  | =ls= | list the contents of the current directory|
+  | =cd= | changes the directory to that specified, i.e. =cd subdir= changes to subdir|
+  | =cp=/=mv= | copy/mv a file or directory (needs -r for cp) to specified location|
+  | =rm= | removes a file/directory (with -r)|
+  | =mkdir | creates a new directory|
+  | =ssh= | log into a remote machine |
+  | =scp=/=rsync= | copies files from a remote machine. =rsync= should be prefered|
+  | =echo= | prints a variable to screen |
+  | =git= | version control software (not the only one) |
+  | =chmod= | changes the permisions (who can read/modify/execute) on a file |
+  | =sed=/=grep=/=awk= | file search and manipulation commands, (see their man pages) |
+  | =man= | brings up the manual for a given command, can often also be done by appending =--help= to the command |
+  
+  -For Mac:
+  | =open= | opens a file with whichever program has been set up as the default for that file (e.g. =open a.pdf= opens a pdf in the default pdf viewer) |
