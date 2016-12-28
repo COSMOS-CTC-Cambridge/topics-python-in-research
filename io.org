@@ -2,7 +2,7 @@
 #+LATEX_CLASS: article
 #+LATEX_CLASS_OPTIONS: [a4paper,10pt]
 #+OPTIONS: H:3
-#+OPTIONS: toc:1
+#+OPTIONS: toc:1 ^:t
 * Efficient and portable I/O
 - You will eventually want to read and write data, too
 - *Badly implemented I/O can easily take 99% of your run-time!*
@@ -33,15 +33,16 @@
     - but have a look at [[http://blaze.readthedocs.io/en/latest/index.html][Blaze]], too
 *** numpy can import almost any text file easily
 - suppose you have a file like this 
-#+BEGIN_SRC python :var filename="files/genfromtxt_example_data.txt" :exports results
-  data='''# This file contains a bunch of point particles of varying locationg, speeds, masses and charges\nX\tY\tZ\tVx\tVy\tVz\tmass\tcharge\n0\t0\t0\t0\t0\t0.1\t100.0\t0.0\n1.0\t0\t4\t0\t10.0\t0\t10.0\t-1.0\n0\t2\t0\t0.1\t0\t0.1\t1000.0\t0.0\n2\t2\t-3\t0.1\t0\t0.1\t100.0\t1.0\n# A comment line'''
+#+BEGIN_SRC python :var filename="files/genfromtxt_example_data.txt" :exports results :results output
+  data='''# This file contains a bunch of point particles of varying locationg, speeds, \n# masses and charges\nX\tY\tZ\tVx\tVy\tVz\tmass\tcharge\n0\t0\t0\t0\t0\t0.1\t100.0\t0.0\n1.0\t0\t4\t0\t10.0\t0\t10.0\t-1.0\n0\t2\t0\t0.1\t0\t0.1\t1000.0\t0.0\n2\t2\t-3\t0.1\t0\t0.1\t100.0\t1.0\n# A comment line'''
   with open(filename,"w") as f:
       f.write(data)
-  return data
+  print(data)
 #+END_SRC
 
 #+RESULTS:
-: # This file contains a bunch of point particles of varying locationg, speeds, masses and charges
+: # This file contains a bunch of point particles of varying locationg, speeds, 
+: # masses and charges
 : X	Y	Z	Vx	Vy	Vz	mass	charge
 : 0	0	0	0	0	0.1	100.0	0.0
 : 1.0	0	4	0	10.0	0	10.0	-1.0
@@ -50,23 +51,33 @@
 : # A comment line
 
 - you can import this with numpy easily
-#+BEGIN_SRC python :tangle yes :tangle "files/genfromtxt_example_import.py" :var filename="files/genfromtxt_example_data.txt"
+#+MACRO: genfromtxt_example_filename_macro "files/genfromtxt_example_data.txt"
+#+NAME: genfromtxt_example_filename
+#+BEGIN_SRC python :exports none
+"files/genfromtxt_example_data.txt"
+#+END_SRC
+#+BEGIN_SRC python :tangle yes :tangle "codes/python/genfromtxt_example_import.py" :var filename="files/genfromtxt_example_data.txt" :eval never-export :results output :noweb yes
   import numpy
-  data = numpy.genfromtxt(filename, comments="#", delimiter="\t", skip_header=2)
-  return data
+  data = numpy.genfromtxt(<<genfromtxt_example_filename>>, comments="#", delimiter="\t", skip_header=3)
+  print(data)
 #+END_SRC
 
 #+RESULTS:
-| 0 | 0 | 0 |   0 |  0 | 0.1 |   1 | 0 |
-| 1 | 0 | 0 |   0 | 10 |   0 | 0.1 | 1 |
-| 0 | 2 | 0 | 0.1 |  0 | 0.1 |  10 | 0 |
+: [[  0.00000000e+00   0.00000000e+00   0.00000000e+00   0.00000000e+00
+:     0.00000000e+00   1.00000000e-01   1.00000000e+02   0.00000000e+00]
+:  [  1.00000000e+00   0.00000000e+00   4.00000000e+00   0.00000000e+00
+:     1.00000000e+01   0.00000000e+00   1.00000000e+01  -1.00000000e+00]
+:  [  0.00000000e+00   2.00000000e+00   0.00000000e+00   1.00000000e-01
+:     0.00000000e+00   1.00000000e-01   1.00000000e+03   0.00000000e+00]
+:  [  2.00000000e+00   2.00000000e+00  -3.00000000e+00   1.00000000e-01
+:     0.00000000e+00   1.00000000e-01   1.00000000e+02   1.00000000e+00]]
 
 - please see =help(numpy.genfromtxt)= for full documentation: the function is capable of ingesting almost any
   kind of textual data, even strings!
 - but it is not fast, no text import ever is
 
 *** TODO!!! Jumping the gun here, but this is how you plot the genfromtxt example
-#+BEGIN_SRC python :tangle yes :tangle "files/genfromtxt_example_plot.py" :var filename="files/genfromtxt_example_data.txt"
+#+BEGIN_SRC python :tangle yes :tangle "codes/python/genfromtxt_example_plot.py" :var filename="files/genfromtxt_example_data.txt"
   import numpy
   import matplotlib
   import matplotlib.pyplot
@@ -75,7 +86,7 @@
   def randrange(n, vmin, vmax):
       return (vmax - vmin)*numpy.random.rand(n) + vmin
 
-  data = numpy.genfromtxt(filename, comments="#", delimiter="\t", skip_header=2)
+  data = numpy.genfromtxt("files/genfromtxt_example_data.txt", comments="#", delimiter="\t", skip_header=2)
 
   fig = matplotlib.pyplot.figure()
   ax = fig.add_subplot(111, projection='3d')
@@ -97,14 +108,16 @@
   ax.set_zlabel('Z Label')
   matplotlib.pyplot.show()
 #+END_SRC
+
+#+RESULTS:
+: None
+
 - TODO!!! how do we display this, jupyter or...?
 
 ** Performant I/O
-- all the above formats can be internally and transparently compressed and it's nearly always a good idea
-  - CPU time spent compressing is often more than saved in reduced time writing/reading to disc
-  - not to mention less disc space needed
-  - but compression is not magic (TODO!!! perhaps change this, it is not very good?):
-#+BEGIN_SRC python :tangle yes :tangle "../codes/python/compressed_numpy.py"
+- all the above formats can be internally and transparently compressed, which can help save disc space
+  - but compression is not magic
+#+BEGIN_SRC python :tangle yes :tangle "codes/python/compressed_numpy.py" :exports results :results output
   import numpy
   import tempfile
   import cProfile
@@ -136,16 +149,34 @@
         zerot=pstats.Stats(cps[3]).total_tt
     ))
 #+END_SRC
+
+#+RESULTS:
+: Time spent and file sizes:
+:   uncompressed random data:   23.2653	1199024848 
+:   compressed random data:     188.415	902640871
+:   compressed semirandom data: 137.38	680397137
+:   compressed zeros:           19.3266	1747540
+
   - floating point numbers are often almost random from a compression algorithm's point of view
+  - for random data the breakeven point with this hardware is around 6 MB/s disc write speed: slower than that
+    and compression wins
+    - unfair comparison since only one core used for compression and the algorithm used is embarrassingly parallel
+    - unfair also because the data comes from a fast local SSD: the write speed is over 50 MB/s
+    - in supercomputing environments disc write speeds of 5 GB/s are normal, but that would require
+      compression speed to go up by over 1000x or more to make compression worth while
+    - but this all depends on both the compression factor and time it takes to compress: the last case
+      obviously benefits even with 50 MB/s disc and single-core compression
+    - *bottom line:* only useful in special cases and when disc-space is tight but CPU seconds are not
   - HDF5's =szip= algorithm is supposed to understand floating point numbers and compress smartly
-- *always write huge chunks of data*
-  - latency is more likely to ruin performance than anything else, so unless you know exactly where the I/O
-    bottleneck is, do big writes into big files, even buffering internally in your code if necessary
-  - and big writes really means big: a 10 MB write is not a big write, let alone a big file!
-  - unfortunately, python is not very good at demonstrating this but you can try to compile and run this
-    (available in =codes/cpp/chunk_size_effect.c=)
+  - *always write huge chunks of data*
+    - latency is more likely to ruin performance than anything else, so unless you know exactly where the I/O
+      bottleneck is, do big writes into big files, even buffering internally in your code if necessary
+    - and big writes really means big: a 10 MB write is not a big write, let alone a big file!
+    - unfortunately, python is not very good at demonstrating this but you can try to compile and run this
+      (available in =codes/cpp/chunk_size_effect.c=)
 #+NAME: chunk_size_effect
-#+BEGIN_SRC C :exports none :tangle yes :tangle "../codes/cpp/chunk_size_effect.c" :padline no
+#+BEGIN_SRC C :tangle yes :tangle "codes/cpp/chunk_size_effect.c" :padline no :cache :flags "-std=c11" :exports both :results output
+  // This file is generated by org-mode, please do not edit
   #define _GNU_SOURCE 1
   #define _POSIX_C_SOURCE 200809L
   #define _XOPEN_SOURCE 700
@@ -157,14 +188,20 @@
   #include <sys/stat.h>
   #include <fcntl.h>
 
-
   #define SIZE 1000*1000*100
 
   int main(int argc, char *argv[]) {
-    if (argc != 3)
-      return 1;
-    int fd1 = open(argv[1], O_WRONLY, O_DIRECT|O_TRUNC);
-    int fd2 = open(argv[2], O_WRONLY, O_DIRECT|O_TRUNC);
+    char *file1, *file2;
+    if (argc != 3) {
+      // please note this is UNSAFE: if such files exist, they will be overwritten
+      file1 = "testfile1";
+      file2 = "testfile2";
+    } else {
+      file1 = argv[1];
+      file2 = argv[2];
+    }
+    int fd1 = open(file1, O_WRONLY|O_TRUNC|O_CREAT, S_IRUSR|S_IWUSR);
+    int fd2 = open(file2, O_WRONLY|O_TRUNC|O_CREAT, S_IRUSR|S_IWUSR);
     double *data = (double *) calloc(SIZE, sizeof(double));
     struct timespec t1, t2, t3;
     clock_gettime(CLOCK_MONOTONIC, &t1);
@@ -176,19 +213,26 @@
     clock_gettime(CLOCK_MONOTONIC, &t3);
     printf("Writing one element at a time took %6li seconds\n", t2.tv_sec-t1.tv_sec);
     printf("Writing all elements at once took  %6li seconds\n", t3.tv_sec-t2.tv_sec);
+    close(fd1);
+    close(fd2);
     return 0;
   }
 #+END_SRC
-#+BEGIN_SRC sh :exports results :results output verbatim 
-cat ../codes/cpp/chunk_size_effect.c
+
+#+RESULTS: chunk_size_effect
+: Writing one element at a time took     88 seconds
+: Writing all elements at once took       4 seconds
+
+#+BEGIN_SRC sh :exports none :results output verbatim 
+cat codes/cpp/chunk_size_effect.c
 #+END_SRC
-#+BEGIN_SRC python
+#+BEGIN_SRC python :exports none
 %%bash
-cat ../codes/cpp/chunk_size_effect.c
-mpicxx -o ../codes/cpp/chunk_size_effect ../codes/cpp/chunk_size_effect.c
+cat codes/cpp/chunk_size_effect.c
+mpicxx -o codes/cpp/chunk_size_effect codes/cpp/chunk_size_effect.c
 f1=$(mktemp ./testXXXXXXXX)
 f2=$(mktemp ./testXXXXXXXX)
-../codes/cpp/chunk_size_effect $f1 $f2
+codes/cpp/chunk_size_effect $f1 $f2
 rm $f1 $f2
 #+END_SRC
 - Bit of a dark magic as disc, unlike the CPU, is a shared resource: other users use same discs
@@ -204,7 +248,7 @@ rm $f1 $f2
   - can also map the writes to the MPI topology
   - needs a bit of a learning curve, unless you chose to use h5py or some other library like it which handles
     the complexity for you (e.g. PETSc):
-#+BEGIN_SRC python :tangle yes :tangle "../codes/python/petsc_hdf5_viewer.py"
+#+BEGIN_SRC python :tangle yes :tangle "codes/python/petsc_hdf5_viewer.py"
   from __future__ import division
   import sys
   import time
@@ -239,7 +283,7 @@ rm $f1 $f2
   - if you run this in parallel using parallel HDF5 library, you just got all the hard bits for free
   - and a similar example in =h5py=
   - note that running this in the frontend uses just one rank
-#+BEGIN_SRC python :tangle yes :tangle "../codes/python/parallel_io_h5py.py"
+#+BEGIN_SRC python :tangle yes :tangle "codes/python/parallel_io_h5py.py"
   import mpi4py
   from mpi4py import MPI
   import h5py
@@ -263,7 +307,7 @@ rm $f1 $f2
 #+END_SRC
 #+BEGIN_SRC python
 %%bash
-mpirun -np 4 python ../codes/python/parallel_io_h5py.py
+mpirun -np 4 python codes/python/parallel_io_h5py.py
 #+END_SRC
   - performance might still be bad, because
 ** Know your filesystem

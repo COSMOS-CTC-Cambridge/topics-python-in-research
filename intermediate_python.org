@@ -402,7 +402,7 @@ cp=cProfile.Profile()
 cp.runcall(approx_pi)
 cp.print_stats(sort="time")
 #+END_SRC
-- Profiling adds a generic performance penatly, so turn profiling off for production
+- Profiling adds a generic performance penalty, so turn profiling off for production
 
 * Debugging
 ** pudb
