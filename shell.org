@@ -360,16 +360,71 @@ find exampledirectory12 -name 'example*1' -print0 |xargs -0 ls -l
 *** Further resources
     [[link][here for example]]
 ** The Compiler
-- what is it
-- why need one
+- While some code (e.g. the shell commands used today and python introduced 
+  tomorrow) can be run line by line, others must be compiled first. A compiler
+  takes the code you write and rewrites it in machine code, a set of machine readable
+  commands which are what the computer actually carries out. 
+- For shell/python this is done on the fly with each line of code read, converted to 
+  machine code and executed in turn, such languages called interpeted languages. 
+- The other class of languages are the compiled languages such as c/c++/Fortran. 
+  Code written in a compiled language cannot be run, instead the code must be
+  compiled to an executable with an appropriate compiler. The executable is a 
+  binary file which has been written from the original file and can now be run.
+
+  | Language | Compiler   |
+  |----------+------------|
+  | c        | =gcc=      |
+  | c++      | =g++=      |
+  | fortran  | =gfortran= |
+  | java     | =javac=    |
+
+*** What is the Compiler Doing?
+- So what exactly does the compiler do? Say we have a simple piece of 
+  c code that adds 1 to an integer in a for loop,
+  
+#+BEGIN_SRC c
+int i, count, n;
+n = 10;
+for (i=0;i++;i<n)
+{
+  count++;
+}
+#+END_SRC
+
+- This cannot be understood by the computer and must be rewritten by the
+   Computer as,
+   
+#+BEGIN_SRC asm
+        MOV r0,#0
+        MOV r1,#0
+        MOV r2,#0
+        MOV r2,#10
+
+loop    ADD r0,#1
+        ADD r1,#1
+        CMP r1,r2
+        BNE loop
+#+END_SRC
+
+- In fact the above isn't machine code, but Assembly. However these are 
+  the commands the computer is actually carrying out and has a one-to-one
+  corrispondance with machine code, which is effectively the above written
+  in hexadecimal. It is worth pointing out that the above is hardware 
+  dependent and for a different computer, particularly if the chip is by a
+  different manufacturer, the output of the compiler will be completely
+  different due to the different chip achitecture.
+  
+
+*** Makefile and Instulation On Unix 
+
 - examples, with last one taking forever to compile because the file
   is so big (but no -ipo as that will take long even with modular
   code): how to sort that out
   
-  ** Appendix I: Key Commands
+** Appendix I: Key Commands
   | =ls= | list the contents of the current directory|
   | =cd= | changes the directory to that specified, i.e. =cd subdir= changes to subdir|
-  | =cp=/=mv= | copy/mv a file or directory (needs -r for cp) to specified location|
+  | =cp= / =mv= | copy/mv a file or directory (needs -r for cp) to specified location|
   | =rm= | removes a file/directory (with -r)|
   | =mkdir | creates a new directory|
   | =ssh= | log into a remote machine |
@@ -377,8 +432,8 @@ find exampledirectory12 -name 'example*1' -print0 |xargs -0 ls -l
   | =echo= | prints a variable to screen |
   | =git= | version control software (not the only one) |
   | =chmod= | changes the permisions (who can read/modify/execute) on a file |
-  | =sed=/=grep=/=awk= | file search and manipulation commands, (see their man pages) |
+  | =sed= / =grep= / =awk= | file search and manipulation commands, (see their man pages) |
   | =man= | brings up the manual for a given command, can often also be done by appending =--help= to the command |
   
-  -For Mac:
+*** For Mac:
   | =open= | opens a file with whichever program has been set up as the default for that file (e.g. =open a.pdf= opens a pdf in the default pdf viewer) |
