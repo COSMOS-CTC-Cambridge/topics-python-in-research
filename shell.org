@@ -378,9 +378,43 @@ find exampledirectory12 -name 'example*1' -print0 |xargs -0 ls -l
   | fortran  | =gfortran= |
   | java     | =javac=    |
 
+- There are multiple compilers for a given language =gcc= , =g++= and =gfortran=
+  are GNU compilers and are most commonly used on Linux.
 - Code can be compiled to different types of binary files which have different 
   purposes. There is often different types of code file in a language to deal
   with class/function decleration and writting libraries of common functions/classes.
+- Object files are the result of compiling a single executable. Multiple object
+  files can be combined to produced executables or shared libraries.
+- Executables are files which can be run, i.e. they are the programs actually
+  used by the user.
+- Shared Libraries (Which go under various different names dependent on how the
+  seperate objects are linked) are files which combine a number of object files
+  and enable these to be imported into a program. Most programs (and indeed many
+  libraries) make use of shared libraries so that existing functionality isn't
+  duplicated. For instance a program written to solve computational fluid 
+  dynamics will normally need to include a solver for systems of linear equations.
+  Instead of rewritting this functionality from sratch the code will make use 
+  of a shared library where the solver has been implimented (In this case BLAS/
+  LAPACK).
+- For c code the above files can be produced in the following way with =gcc=
+#+BEGIN_SRC bash
+gcc -c code.c
+#+END_SRC
+- produces an object
+#+BEGIN_SRC bash
+gcc -shared -o libcode.so code1.o code2.o
+#+END_SRC
+- produces a shared library from =code1.o= and =code2.o=. Note this is not the only
+  type of library for instance files ending in =.dylib= and =.a= are also types of
+  library but are used in different ways.
+#+BEGIN_SRC bash
+gcc -o program code.c
+#+END_SRC
+- produces an executable =program= from =code.c=. This executable can be run by
+  typing =./program= into the directory containing the executable and presumably
+  does useful things (prints hello world, solves a maths problem, breaks your 
+  computer etc).
+- Fortran and c++ can be compiled in a similar way using =gfortran= and =g++=.
 
 *** What is the Compiler Doing?
 - So what exactly does the compiler do? Say we have a simple piece of 
