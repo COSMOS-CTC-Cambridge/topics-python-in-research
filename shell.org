@@ -378,6 +378,10 @@ find exampledirectory12 -name 'example*1' -print0 |xargs -0 ls -l
   | fortran  | =gfortran= |
   | java     | =javac=    |
 
+- Code can be compiled to different types of binary files which have different 
+  purposes. There is often different types of code file in a language to deal
+  with class/function decleration and writting libraries of common functions/classes.
+
 *** What is the Compiler Doing?
 - So what exactly does the compiler do? Say we have a simple piece of 
   c code that adds 1 to an integer in a for loop,
@@ -416,6 +420,75 @@ loop    ADD r0,#1
   
 
 *** Makefile and Instulation On Unix 
+- While compiling a single file can be done effectively with just a compiler, 
+  compiling an entire program takes a long time if it has to be done in one
+  go. In addition different computers have different architectures and often
+  store common libraries in different places. Thus most programs on linux 
+  (That aren't obtain directly as binary files), are installed using a configure
+  script and a makefile. 
+- A makefile is a sequence of dependent instructions. Say you had a program which
+  was split into two files =main.cpp= which contains the main program and 
+  =another_file.cpp= which contains a lot of function definitions which are used
+  by =main.cpp=. Using the method described above this can be compiled by running
+  the following set of commands,
+  
+#+BEGIN_SRC bash
+g++ -c another_file.cpp
+g++ -c main.cpp
+g++ -o executable main.o another_file.o
+#+END_SRC
+
+- This could be written in a script and run each time =main.cpp= or =another_file.cpp=
+  was modified. However this has the issue that if one of the files is modified both
+  are recompiled, even though the other hasn't changed. For a large progam consising
+  of ~100 files it becomes prohibative to recompile all of them when a small change
+  may have been made to a single file. This is where makefiles come in, written as a
+  makefile the above is,
+
+#+BEGIN_SRC ob-makefile.el
+executable: main.o another_file.o
+  g++ -o executable main.o another_file.o
+
+main.o: main.cpp
+  g++ -c main.cpp
+  
+another_file.o: another_file.cpp
+  g++ -c another_file.cpp
+#+END_SRC
+
+- Running this script causes only the files that have been modified, and any files which 
+  depend on them, to be compiled. Thus if =main.cpp= is changed running the makefile will
+  result in the following commands being executed,
+
+#+BEGIN_SRC bash
+g++ -c main.cpp
+g++ -o executable main.o another_file.o
+#+END_SRC
+
+- As can be seen in this instance the script does not recompile =another_file.cpp= as it
+  has not changed in any way.
+  
+- When compiling a program the compiler needs to know where the libraries which the
+  program is dependant on are stored. This is done with a configure script which 
+  writes the approriate makefile for the operating system, arcitecture, and file system
+  that the program is being installed on. Many programs on Linux are (or can be) installed
+  from the source code and this is done as follows,
+  
+#+BEGIN_SRC bash
+./configure
+#+END_SRC
+- Finds all the programs dependancies and writes the appropriate makefile
+#+BEGIN_SRC bash
+make
+#+END_SRC
+- Compiles the code to object files and links them to create a shared library or executable
+#+BEGIN_SRC bash
+make install
+#+END_SRC
+- Copies the resultant shared libraries/executables to somewhere appropriate in the
+  file system so they can be easilly acessed. For instance executables could be copied
+  to "/bin" where they are in the system path an can be thus called be simply typing
+  the name of the executable from any directory.
 
 - examples, with last one taking forever to compile because the file
   is so big (but no -ipo as that will take long even with modular
