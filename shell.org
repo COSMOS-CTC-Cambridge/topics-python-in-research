@@ -415,6 +415,19 @@ gcc -o program code.c
   does useful things (prints hello world, solves a maths problem, breaks your 
   computer etc).
 - Fortran and c++ can be compiled in a similar way using =gfortran= and =g++=.
+- Compiled languages need to know the type of variables/functions used in 
+  the code. So when code from a shared library or object is used in a file,
+  that file needs to declare the functions/class etc used. These are done in
+  seperate files which contain only the declerations of the functions/classes
+  in the linked library/object and crucially should not contain implimentation.
+  The compiler appends these to the start of the file before compilation, hence
+  in c/c++ these are termed header files and have the suffix =.h= / =.hpp= .
+  Fortran has a related file called a module file, however these do contain
+  the implimentation and are also compiled to probuce objects.
+- In general a program consisting of multiple objects/headers is,
+#+BEGIN_SRC bash
+g++ -I /headerfile/dir -L /library/dir -llibrary -o outputfilename
+#+END_SRC
 
 *** What is the Compiler Doing?
 - So what exactly does the compiler do? Say we have a simple piece of 
