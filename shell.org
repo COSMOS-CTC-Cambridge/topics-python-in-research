@@ -359,6 +359,82 @@ find exampledirectory12 -name 'example*1' -print0 |xargs -0 ls -l
   start it.
 *** Further resources
     [[link][here for example]]
+    
+** Version Control and Git
+- When collaborating on a project, or when producing any substansive
+  code independantly version control is normally invaluable. Version control
+  software saves the changes you make to code meaning if you accidently 
+  delete something or introduce a fatal bug the code can be reverted to
+  a previous state prior to this occuring. Good (specifically modern) version
+  control software also makes it easy to have multiple versions of a code,
+  so that several people can work on the same program and even the same file.
+  The version control software makes it easier to merge in the different code
+  that people have produced and provides tools to deal with sitations when two
+  versions of the code conflict (although if your using svn you might as well
+  give up because it's horrible).
+- There are many programs to do version control (in fact google docs/Of**e 360
+  have a primitive forms of it) the one covered here is =git= as it's probably
+  the most useful/common one. Another important version control software worth
+  mentioning is =svn= as a lot of scientific software is distributed using it.
+  =svn= is an older version control software and is good at version control, 
+  however it is fairly hopeless at dealing with collaborative projects (apperently
+  modern svn is a bit better, but that's rarely what people use).
+- Code in git is organised into repositories, which are self contained projects/
+  programs. Within a repository there can be many branches, which are copies of
+  the code with different histories. Typically a repository has a master branch
+  which contains the code that is used and development/hotfix branches which are
+  used to add new features/fix bugs without breaking the code in the master branch.
+- When dealing with collabortive projects there are various philosopies of how the
+  project ought to be structured, but we won't go into it here. 
+- To obtain a copy of a repositroy (say the repository this course is stored in)
+  use:
+#+BEGIN_SRC bash  
+git clone <project url>
+#+END_SRC
+- for this course specifically
+#+BEGIN_SRC bash
+git clone https://github.com/juhaj/topics-python-in-research
+#+END_SRC   
+- From now on we will be using a clone of the repository of this course to demostrate
+  how =git= works.
+- While you can safely edit the repository you have just obtained a copy of, it's good
+  practice to create a new branch for your changes in case you do something stupid,
+#+BEGIN_SRC bash
+git checkout -b 'dev-newbranch' 
+#+END_SRC
+- which creates and switches to a new branch, in this case called =dev-newbranch=
+  (although you can call yours what you like so long as you don't put bloody spaces
+  in it). Now open a file editor and write a new file in the main directory (alternately
+  if you are lazy do =touch newfile.txt=). How do we add this file to version control?
+#+BEGIN_SRC bash
+git add newfile.txt
+#+END_SRC
+- tells git that =newfile.txt= should be staged for commit. This has to be done each
+  time you change the file as git will not commit changes if you haven't added them 
+  yet. We could continue making changes and adding them as above until we are ready
+  to preform a commit. Each commit is a snapshot of the branch at a given moment, and
+  you can go back to a previous commit if you make a mistake. They are also important
+  if two people are working on the same project. To commit the changes do,
+#+BEGIN_SRC bash
+git commit -m 'added newfile.txt as test'
+#+END_SRC
+- The =-m 'added newfile.txt as test'= is unnessicary, it's just a message that goes
+  with the commit to explain the changes made.
+- Say you broke the code and can't figure out how to fix it or deleted something important,
+  to go back to a previous, first look at a list of the previous commit with,
+#+BEGIN_SRC bash
+git log --oneline
+#+END_SRC
+- you should see the commit you have just made with the message you just wrote, there 
+  will also be a sequence of numbers and letters which is the revision id. There will
+  be a list of revisions with commit messages which preceded your change. Copy the id
+  of the commit prior to yours and do,
+#+BEGIN_SRC bash
+git checkout <previous-revision-id>
+#+END_SRC
+- This will checkout the previous commit before you made your changes. If you wanted\
+  to revert your changes you would now commit this as above.
+
 ** The Compiler
 - While some code (e.g. the shell commands used today and python introduced 
   tomorrow) can be run line by line, others must be compiled first. A compiler
