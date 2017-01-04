@@ -1,0 +1,38 @@
+- demo algorithmic complexity
+- sparse matrices?
+- simple parallel operation
+- mention parallel computing
+
+* IO and Viz (provide dataset); matplotlib, mayavi2
+** IO
+- hdf5 io, perhaps savez too
+- genfromtxt but warn against its use
+** mayavi
+- pylab 2D from numpy array (or hdf5 ds)
+- hdf5 ds contour plot
+- streamlines
+- ???
+*** More examples
+[[http://docs.enthought.com/mayavi/mayavi/auto/examples.html][mayavi examples page]]
+* Game of Life
+* Optimisation
+* 3D linear PDE using FD, boundary value problem
+   - explain nonlin in lectures
+   - have them code a linear one
+   - Krylov?
+* Statistics
+   - of a dataset
+   - correlation functions? (FFT)
+   - principal component analysis?
+* MCMC
+* Non-linear PDE?
+* FEM?
+* Integration!?!
+* implicit TS
+
+
+- normal python exercises? 
+- io: memmapped io; create a non-rectangular hdf5 data like tetrahedral tesselation with a single scalar at
+  each node with one dataset giving data points and another their coordinates (vertices of the etrahedra);
+- vis: matplotlib animation
+- shell: enough git to get them cloning the repo so they get the examples
