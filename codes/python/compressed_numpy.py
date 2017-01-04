@@ -1,4 +1,5 @@
 import numpy
+import os
 import tempfile
 import cProfile
 import pstats
@@ -19,10 +20,10 @@ print('''Time spent and file sizes:
   compressed random data:     {compt:g}\t{comps}
   compressed semirandom data: {semit:g}\t{semis}
   compressed zeros:           {zerot:g}\t{zeros}'''.format(
-      uncomps=tempfiles[0].tell(),
-      comps=tempfiles[1].tell(),
-      semis=tempfiles[2].tell(),
-      zeros=tempfiles[3].tell(),
+      uncomps=os.stat(tempfiles[0].name).st_size,
+      comps=os.stat(tempfiles[1].name).st_size,
+      semis=os.stat(tempfiles[2].name).st_size,
+      zeros=os.stat(tempfiles[3].name).st_size,
       uncompt=pstats.Stats(cps[0]).total_tt,
       compt=pstats.Stats(cps[1]).total_tt,
       semit=pstats.Stats(cps[2]).total_tt,
