@@ -17,14 +17,17 @@ def correllation(ar1,ar2):
   return CovMat
 
 
+
 def covarience_matrix(ar1):
-  N = ar1.shape[0]
+  #nar1 = ar1 - np.outer(np.mean(ar1,axis=1),np.ones(ar1.shape[1]))
+
+  N = ar1.shape[1]
   return correllation(ar1,ar1)/(N - 1)
 
 def PCA(ar1):
   
 
-  print ar1.shape
+  #print ar1.shape
 
   nar1 = ar1 - np.outer(np.mean(ar1,axis=1),np.ones(ar1.shape[1]))
 

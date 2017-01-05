@@ -11,9 +11,10 @@ X = monti_carlo.monti_carlo_samples(monti_carlo.gaussian_random_qfunc,N,qfargs,n
 a = 0.3
 b = 0.7
 c = 3.0
+d = 0.1
 
 x = a*X[:,0] - b*X[:,1]
-y = b*X[:,0] + a*X[:,1] + c*x
+y = b*X[:,0] + a*X[:,1] + c*x 
 
 plt.plot(x,y,'ko',mew=2)
 plt.show()
