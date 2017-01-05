@@ -16,13 +16,23 @@ def correllation(ar1,ar2):
 
   return CovMat
 
+def correllation_fft(ar1,ar2):
+  
+  far1 = np.fft.rfftn(ar1,axes=(0,))
+  far2 = np.fft.rfftn(ar2,axes=(0,))
 
+  fcorrel  = np.dot(far1,far2.conjugate().T)
+
+  print fcorrel
+
+  return np.fft.irfftn(fcorrel,(ar1.shape[0],),axes=(0,))
 
 def covarience_matrix(ar1):
   #nar1 = ar1 - np.outer(np.mean(ar1,axis=1),np.ones(ar1.shape[1]))
 
   N = ar1.shape[1]
-  return correllation(ar1,ar1)/(N - 1)
+  #return correllation(ar1,ar1)/(N - 1)
+  return correllation_fft(ar1,ar1)/(N - 1)
 
 def PCA(ar1):
   
