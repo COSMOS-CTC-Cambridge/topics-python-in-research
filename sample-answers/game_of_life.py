@@ -25,32 +25,16 @@ def add_glider(ar1,loc):
   glider = np.array([[0,1,0], 
                      [0,0,1],
                      [1,1,1]], dtype=np.int)
-
-  index1 = tuple(loc[0] + np.array([0,1,2]*3))
-  index2 = tuple(loc[1] + np.array([0]*3 + [1]*3 + [2]*3))
-
-  ar1[index1,index2] = glider.flatten()
+  ar1[loc[0]:loc[0]+glider.shape[0],loc[1]:loc[1]+glider.shape[1]] = glider
   return ar1
   
   
 def add_block(ar1,loc):
-  index1 = tuple(loc[0] + np.array([0,1]*2))
-  index2 = tuple(loc[1] + np.array([0]*2 + [1]*2))
-
-  ar1[index1,index2] = np.ones(4)
+  ar1[loc[0]:loc[0]+2,loc[1]:loc[1]+2] = np.ones((2,2))
   return ar1
 
 def add_subarray(ar1,subar,loc):
-  N = subar.shape[0]
-  M = subar.shape[1]
-
-  index1 = tuple(loc[0] + np.array(range(M)*N))
-  index2 = tuple(loc[1] + np.outer(range(N),np.ones(M)).flatten())
- 
-  #print index1
-  #print index2
-
-  ar1[index1,index2] = subar.flatten()
+  ar1[loc[0]:loc[0]+subar.shape[0],loc[1]:loc[1]+subar.shape[1]] = subar
   return ar1
 
 
@@ -80,9 +64,9 @@ def add_gospergun(ar1,loc):
                          [0,0,1,0,1],
                          [0,0,0,0,1]], dtype=np.int)
 
-  glider_gun = add_subarray(glider_gun,component1.transpose(),(2,10))
-  glider_gun = add_subarray(glider_gun,component2.transpose(),(0,20))
- 
+  glider_gun = add_subarray(glider_gun,component1,(2,10))
+  glider_gun = add_subarray(glider_gun,component2,(0,20))
+
   ar1 = add_subarray(ar1,glider_gun,loc)
   return ar1
 
@@ -92,11 +76,7 @@ def add_smallgrower(ar1,loc):
                      [0,0,0,1,1],
                      [0,1,1,0,1],
                      [1,0,1,0,1]], dtype=np.int)
-
-  index1 = tuple(loc[0] + np.array(range(5)*5))
-  index2 = tuple(loc[1] + np.array([0]*5 + [1]*5 + [2]*5 + [3]*5 + [4]*5))
-
-  ar1[index1,index2] = grower.flatten()
+  ar1[loc[0]:loc[0]+grower.shape[0],loc[1]:loc[1]+grower.shape[1]] = grower
   return ar1
 
   # simple script to set up

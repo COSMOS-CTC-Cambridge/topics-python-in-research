@@ -24,7 +24,7 @@ def markov_chain_recurance(recfunc,qfunc,X0,N,qfargs,ndim=1):
 
   U =  monti_carlo_samples(qfunc,N-1,qfargs)
 
-  for t in xrange(N-1):
+  for t in range(N-1):
     X[t+1] = recfunc(t,X[t],U[t])
 
   return X
@@ -39,7 +39,7 @@ def markov_chain_conditionaldistribution(qfunc,X0,N,qfargs,ndim=1):
 
   randval = np.random.rand(N-1)
 
-  for t in xrange(N-1):
+  for t in range(N-1):
     X[t+1] = qfunc(randval[t],X[t],*qfargs)
 
   return X
@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
      
 
-  N = 500
+  N = 1000
 
   ma = 1.0
   mb = 10.0

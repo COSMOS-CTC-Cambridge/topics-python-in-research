@@ -10,8 +10,8 @@ def correllation(ar1,ar2):
 
   Nfreq = min(ar1.shape[1],ar2.shape[1])
 
-  for i in xrange(Ncomponents):
-    for j in xrange(Ncomponents):
+  for i in range(Ncomponents):
+    for j in range(Ncomponents):
       CovMat[i,j] = np.dot(ar1[i],ar1[j])
 
   return CovMat
@@ -23,7 +23,7 @@ def correllation_fft(ar1,ar2):
 
   fcorrel  = np.dot(far1,far2.conjugate().T)
 
-  print fcorrel
+  #print fcorrel
 
   return np.fft.irfftn(fcorrel,(ar1.shape[0],),axes=(0,))
 
@@ -31,8 +31,8 @@ def covarience_matrix(ar1):
   #nar1 = ar1 - np.outer(np.mean(ar1,axis=1),np.ones(ar1.shape[1]))
 
   N = ar1.shape[1]
-  #return correllation(ar1,ar1)/(N - 1)
-  return correllation_fft(ar1,ar1)/(N - 1)
+  return correllation(ar1,ar1)/(N - 1)
+  #return correllation_fft(ar1,ar1)/(N - 1)
 
 def PCA(ar1):
   
@@ -49,7 +49,7 @@ def PCA(ar1):
 
   retar = np.zeros_like(ar1)
 
-  for i in xrange(ar1.shape[0]): 
+  for i in range(ar1.shape[0]): 
     retar[i] = np.dot(eigvec[:,i],nar1)
 
   return retar, eigvec, eigval
