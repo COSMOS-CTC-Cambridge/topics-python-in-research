@@ -7,6 +7,7 @@
 ** IO
 - hdf5 io, perhaps savez too
 - genfromtxt but warn against its use
+- memmap
 ** mayavi
 - pylab 2D from numpy array (or hdf5 ds)
 - hdf5 ds contour plot
