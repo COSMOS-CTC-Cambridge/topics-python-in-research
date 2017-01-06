@@ -34,17 +34,9 @@
     - but have a look at [[http://blaze.readthedocs.io/en/latest/index.html][Blaze]], too
 *** numpy can import almost any text file easily
 - suppose you have a file like this 
-#+NAME: genfromtxt_example_filename
-#+BEGIN_SRC python :exports none
-"files/genfromtxt_example_data.txt"
-#+END_SRC
-
-#+RESULTS: genfromtxt_example_filename
-: None
-
 #+BEGIN_SRC python :var filename="files/genfromtxt_example_data.txt" :exports results :results output :noweb yes
   data='''# This file contains a bunch of point particles of varying locationg, speeds, \n# masses and charges\nX\tY\tZ\tVx\tVy\tVz\tmass\tcharge\n0\t0\t0\t0\t0\t0.1\t100.0\t0.0\n1.0\t0\t4\t0\t10.0\t0\t10.0\t-1.0\n0\t2\t0\t0.1\t0\t0.1\t1000.0\t0.0\n2\t2\t-3\t0.1\t0\t0.1\t100.0\t1.0\n# A comment line'''
-  with open(<<genfromtxt_example_filename>>,"w") as f:
+  with open("files/genfromtxt_example_data.txt","w") as f:
       f.write(data)
   print(data)
 #+END_SRC
@@ -60,11 +52,14 @@
 : # A comment line
 
 - you can import this with numpy easily
-#+MACRO: genfromtxt_example_filename_macro "files/genfromtxt_example_data.txt"
-#+BEGIN_SRC python :tangle yes :tangle "codes/python/genfromtxt_example_import.py" :var filename="files/genfromtxt_example_data.txt" :eval never-export :results output :noweb yes
+#+NAME: genfromtxt_example_import_importer
+#+BEGIN_SRC python :results file silent :exports none :noweb yes
   import numpy
-  data = numpy.genfromtxt(<<genfromtxt_example_filename>>, comments="#",
+  data = numpy.genfromtxt("files/genfromtxt_example_data.txt", comments="#",
                           delimiter="\t", skip_header=3)
+#+END_SRC
+#+BEGIN_SRC python :tangle yes :tangle "codes/python/genfromtxt_example_import.py" :var filename="files/genfromtxt_example_data.txt" :eval never-export :results output :noweb yes
+  <<genfromtxt_example_import_importer>>
   print(data)
 #+END_SRC
 
@@ -94,14 +89,10 @@
   - it can only be resized if declared resizable
   - is a memory mapped array (more on that in an exercise)
 #+NAME: h5py_read_example_filename
-#+BEGIN_SRC python :exports none
+#+BEGIN_SRC python :results file silent :exports none
 "files/h5py_read_example_data.h5"
 #+END_SRC
-
-#+RESULTS: h5py_read_example_filename
-: None
-
-#+BEGIN_SRC python :exports none :noweb yes
+#+BEGIN_SRC python :results file silent :exports none :noweb yes
   import numpy
   import h5py
   '''Generate a 2x2 grid and random 3-vectors on it.'''
@@ -112,10 +103,6 @@
   f.create_dataset("my_vector_data", data=vecs)
   f.close()
 #+END_SRC
-
-#+RESULTS:
-: None
-
 #+BEGIN_SRC python :tangle yes :tangle "codes/python/h5py_read_example.py" :exports both :results output :noweb yes
   import h5py
   import numpy
@@ -136,8 +123,8 @@
 : Maximum of coordinate values
 : 11.0
 : Vector norms squared
-: [[ 0.8746662   1.63772372]
-:  [ 1.34196646  0.88429353]]
+: [[ 1.04592874  0.25349788]
+:  [ 0.33607341  0.86112512]]
 
 ** Performant I/O
 - all the above formats can be internally and transparently compressed, which can help save disc space
