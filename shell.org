@@ -496,7 +496,7 @@ gcc -o program code.c
   that file needs to declare the functions/class etc used. These are done in
   seperate files which contain only the declerations of the functions/classes
   in the linked library/object and crucially should not contain implimentation.
-  The compiler appends these to the start of the file before compilation, hence
+  The compiler appends these to the start of the file before compilation, hence 
   in c/c++ these are termed header files and have the suffix =.h= / =.hpp= .
   Fortran has a related file called a module file, however these do contain
   the implimentation and are also compiled to probuce objects.
@@ -618,13 +618,13 @@ make install
   code): how to sort that out
   
 ** Appendix I: Key Commands
-  | =ls= | list the contents of the current directory|
-  | =cd= | changes the directory to that specified, i.e. =cd subdir= changes to subdir|
-  | =cp= / =mv= | copy/mv a file or directory (needs -r for cp) to specified location|
-  | =rm= | removes a file/directory (with -r)|
-  | =mkdir | creates a new directory|
+  | =ls= | list the contents of the current directory |
+  | =cd= | changes the directory to that specified, i.e. =cd subdir= changes to subdir |
+  | =cp= / =mv= | copy/mv a file or directory (needs -r for cp) to specified location |
+  | =rm= | removes a file/directory (with -r) |
+  | =mkdir= | creates a new directory |
   | =ssh= | log into a remote machine |
-  | =scp=/=rsync= | copies files from a remote machine. =rsync= should be prefered|
+  | =scp= / =rsync= | copies files from a remote machine. =rsync= should be prefered |
   | =echo= | prints a variable to screen |
   | =git= | version control software (not the only one) |
   | =chmod= | changes the permisions (who can read/modify/execute) on a file |
