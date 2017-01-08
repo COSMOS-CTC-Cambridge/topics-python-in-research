@@ -11,7 +11,14 @@ def monti_carlo_samples(qfunc,N,qfargs,ndim=1):
 def gaussian_random_qfunc(randval,mean,sigma):
   return mean + sigma*np.sqrt(2)*spc.erfinv(randval*2.0 - 1)
 
-
+ 
+# method from xkcd 221
+def get_random_number():
+  # chosen by fair dice roll
+  # guaranteed to be random
+  return 1 
+ 
+ 
   # produces X_t+1 from reccurance
   # relation given by
   # X_t+1 = recfunc(t,X_t,U_t)
@@ -160,49 +167,4 @@ if __name__ == '__main__':
   plt.plot(X[:,0],X[:,1],'bo-')
   plt.show()
   plt.clf()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
