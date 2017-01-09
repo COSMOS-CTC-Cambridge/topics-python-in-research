@@ -404,7 +404,9 @@ git checkout -b 'dev-newbranch'
 #+END_SRC
 - which creates and switches to a new branch, in this case called =dev-newbranch=
   (although you can call yours what you like so long as you don't put bloody spaces
-  in it). Now open a file editor and write a new file in the main directory (alternately
+  in it). The = -b= is there to create a new branch and isn't required to checkout
+  an existing one.
+- Now open a file editor and write a new file in the main directory (alternately
   if you are lazy do =touch newfile.txt=). How do we add this file to version control?
 #+BEGIN_SRC bash
 git add newfile.txt
@@ -418,7 +420,7 @@ git add newfile.txt
 #+BEGIN_SRC bash
 git commit -m 'added newfile.txt as test'
 #+END_SRC
-- The =-m 'added newfile.txt as test'= is unnessicary, it's just a message that goes
+- The = -m 'added newfile.txt as test' = is unnessicary, it's just a message that goes
   with the commit to explain the changes made.
 - Say you broke the code and can't figure out how to fix it or deleted something important,
   to go back to a previous, first look at a list of the previous commit with,
@@ -432,9 +434,12 @@ git log --oneline
 #+BEGIN_SRC bash
 git checkout <previous-revision-id>
 #+END_SRC
-- This will checkout the previous commit before you made your changes. If you wanted\
-  to revert your changes you would now commit this as above.
-
+- This will checkout the previous commit before you made your changes. To revert the
+  changes, first go back to the current commit (=git checkout 'dev-newbranch'=) then
+  call:
+#+BEGIN_SRC bash
+git revert <previous-revision-id>
+#+END_SRC
 ** The Compiler
 - While some code (e.g. the shell commands used today and python introduced 
   tomorrow) can be run line by line, others must be compiled first. A compiler
