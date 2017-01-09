@@ -45,6 +45,53 @@ def markov_chain_conditionaldistribution(qfunc,X0,N,qfargs,ndim=1):
   return X
 
 
+def metropolis_hastings(pdfunc,proposalq,proposalpdf,X0,N,pdfargs,proposalargs):
+
+  X = np.zeros((N,ndim))
+  X[0] = X0
+
+  randval = np.random.rand(N-1)
+  U = np.random.rand(N-1)
+
+  for t in range(N-1):
+    y = proposalq(randval[t],X[t],*proposalargs) 
+    
+    acceptance = min((pdfunc(y,*pdfargs)*proposalpdf(X[t],y,*proposalargs))  \
+                      / (pdfunc(X[t],*pdfargs)*proposalpdf(y,X[t],*proposalargs)),1)
+    if U[t] <= acceptance:
+      X[t+1] = y
+    else:
+      X[t+1] = X[t]
+
+  return X
+
+
+def hit_and_run(pdfunc,proposalq,proposalpdf,X0,N,proposalargs,pdfargs,ndim=1):
+
+  X = np.zeros((N,ndim))
+  X[0] = X0
+
+  randval = np.random.rand(N-1,ndim)
+  U = np.random.rand(N-1)
+
+  for t in range(N-1):
+    direction = randval[t]/np.sqrt(np.sum(randval[t]**2))
+    
+    step = proposalq(direction,X[t],proposalargs)
+
+    y = X[t] + step*direction
+    
+    acceptance = min((pdfunc(y,*pdfargs)*proposalpdf(abs(step),-np.sgn(step),y,*proposalargs))  \
+                      / (pdfunc(X[t],*pdfargs)*proposalpdf(abs(step),np.sgn(step),X[t],*proposalargs)),1)
+ 
+    if U[t] <= acceptance:
+      X[t+1] = y
+    else:
+      X[t+1] = X[t]
+
+  return X
+
+
 if __name__ == '__main__':
 
   import matplotlib.pylab as plt
@@ -160,6 +207,10 @@ if __name__ == '__main__':
   plt.plot(X[:,0],X[:,1],'bo-')
   plt.show()
   plt.clf()
+
+  #MCMC Metropolis-Hasitings
+
+  #MCMC Hit-and-Run
 
 
 
