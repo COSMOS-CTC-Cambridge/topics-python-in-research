@@ -11,7 +11,14 @@ def monti_carlo_samples(qfunc,N,qfargs,ndim=1):
 def gaussian_random_qfunc(randval,mean,sigma):
   return mean + sigma*np.sqrt(2)*spc.erfinv(randval*2.0 - 1)
 
-
+ 
+# method from xkcd 221
+def get_random_number():
+  # chosen by fair dice roll
+  # guaranteed to be random
+  return 1 
+ 
+ 
   # produces X_t+1 from reccurance
   # relation given by
   # X_t+1 = recfunc(t,X_t,U_t)
@@ -208,6 +215,7 @@ if __name__ == '__main__':
   plt.show()
   plt.clf()
 
+<<<<<<< HEAD
   #MCMC Metropolis-Hasitings
 
   #MCMC Hit-and-Run
@@ -257,3 +265,5 @@ if __name__ == '__main__':
 
 
 
+=======
+>>>>>>> 6bd881da23ff470bfa03fb50504139e8e45ec3c8
