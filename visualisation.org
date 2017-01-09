@@ -127,13 +127,15 @@ pylab.legend()
   ax.grid()
   xdata, ydata = [], []
 
-  def run(data):
+  def run(data, args):
       '''This is called by the animator for each frame with new data from "data_gen" each time. What we do here
       is up to us: we could even write the plot to disc (see the commented-out line) or we could do something
       completely unrelated to matplotlib!
       The present code will append new data to its old (global variable) data and generate a new animation
       frame. Note that matplotlib holds a copy of our old data so we could fish it out from the depths of its
-      internal representation and append to that but that's a bit complicated for our example here.'''
+      internal representation and append to that but that's a bit complicated for our example here.
+      We have been passed "args" but we ignore that.
+      '''
       t, y = data
       xdata.append(t)
       ydata.append(y)
@@ -142,12 +144,47 @@ pylab.legend()
           ax.set_xlim(xmin, 2*xmax)
           ax.figure.canvas.draw()
       line.set_data(xdata, ydata)
-      #plt.savefig("testanimationsaveframe_{n:010d}.png".format(n=int(10*t)))
       return line,
 
-  ani = animation.FuncAnimation(fig, run, data_gen, blit=False, interval=10,
+  ani = animation.FuncAnimation(fig, run, data_gen, blit=False, interval=10, fargs=("arguments",),
                                 repeat=False, init_func=init)
   plt.show()
+#+END_SRC
+** Exercise
+Use your Game of Life from earlier on and animate it using =FuncAnimation=. You have already written the
+stepper in such a way that it is easy to wrap into a small "run" function which generates frames one at a
+time. Hint: easiest way to plot is probably matplotlib's =imshow= function.
+*** Solution
+Available in the repo.
+#+HEADER: :tangle yes :tangle "codes/python/Game_of_Life_Animation.py"
+#+HEADER: :eval never-export :noweb yes
+#+HEADER: :exports none :results output silent
+#+HEADER: :var plotfilename="files/matplotlib-3d-example.png"
+#+BEGIN_SRC python
+  import sys
+  #sys.path.append("codes/python")
+  import Game_of_Life
+
+  import matplotlib
+  import matplotlib.pyplot
+  import matplotlib.animation
+
+  matplotlib.pyplot.ion()
+
+  def frame_generator(iteration, state, fig, ax):
+      state[:] = Game_of_Life.step(state)[:]
+      axesimage = ax.imshow(state)
+      return [axesimage]
+    
+  def animate_game(size=(100,100)):
+      fig = matplotlib.pyplot.figure()
+      ax = fig.add_subplot(111)
+      state = Game_of_Life.initial(size)
+      ani = matplotlib.animation.FuncAnimation(fig, frame_generator, fargs=(state, fig, ax),
+                                               blit=False, interval=10, frames=10,
+                                               repeat=True)
+      matplotlib.pyplot.show()
+      return ani
 #+END_SRC
 * Parallel Visualisation: ParaView (very quick intro)
 - ParaView, as the name suggests, runs in (distributed) parallel: no data is too big if you managed to create
