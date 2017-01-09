@@ -1,7 +1,6 @@
 * python
-This is mostly based on the official [[https://docs.python.org/2/tutorial/][python tutorial]] (also have a look at [[https://docs.python.org/3/tutorial/index.html][version 3 tutorial]] to see how things
-will change in the future): reading the tutorial is highly recommended to make sure your python is up to
-speed.
+This is mostly based on the official [[https://docs.python.org/3/tutorial/][python tutorial]]: reading the tutorial is highly recommended to make sure
+your python is up to speed.
 
 ** Data Structures: lists, tuples, dicts
 - list is just that: a list of things
@@ -57,7 +56,6 @@ print(lista)
   b=(1,42)
   print("Equality of {a} and {b} evaluates to {val}.".format(a=coord, b=b, val=b==coord))
 #+END_SRC
-
 
 ** Slicing of arrays and strings 
 This will be used heavily, so a few interactive examples
@@ -338,13 +336,13 @@ when the hit (occupy same coordinates) each other for the first time.
     =/scriptdir= along with =script.py=. Then =cd /directory; python /scriptdir/script.py= will find =z=, but
     =cd /directory; python= followed by an interactive =import z= will fail yet =cd /scriptdir; python=
     followed by an interactive =import z= will again work:
-#+BEGIN_SRC python :exports none :tangle yes :tangle "../codes/python/MyModule.py"
+#+BEGIN_SRC python :exports none :tangle yes :tangle "codes/python/MyModule.py"
   module_internal_variable = 42
   def function_inside_a_module(parameter):
     return parameter+1
 #+END_SRC
   - for example we have a module calles =MyModule.py= in =codes/python/MyModule.py= so let's import that  
-#+BEGIN_SRC python :tangle yes :tangle "../codes/python/ImportMyModule.py"
+#+BEGIN_SRC python :tangle yes :tangle "codes/python/ImportMyModule.py"
   import os
   print("Current working directory is "+os.getcwd())
   import MyModule
@@ -354,7 +352,7 @@ when the hit (occupy same coordinates) each other for the first time.
 #+BEGIN_SRC python
   %%bash
   pwd
-  python ../codes/python/ImportMyModule.py
+  python codes/python/ImportMyModule.py
 #+END_SRC
 - the search path is partially system dependent, but there's always =PYTHONPATH= which is searched before the
   system depedent path, so we can fix this
@@ -362,7 +360,7 @@ when the hit (occupy same coordinates) each other for the first time.
   import os
   import sys
   print("Current working directory is "+os.getcwd())
-  sys.path = ["../codes/python"] + sys.path
+  sys.path = ["codes/python"] + sys.path
   import MyModule
   print("The variable MyModule.module_internal_variable has the value "+str(MyModule.module_internal_variable))
 #+END_SRC
@@ -443,6 +441,9 @@ scipy.fftpack.fftn([1,2,3])
           +---- theta.py          Implicit Theta method timestepper
           +---- imex.py           Implicit-Explicit Runge-Kutta
 #+END_SRC
+
+#+RESULTS:
+[[file:images/python_package_structure.png]]
 
 - *N.B.* when searching for a module to import =import MyPackage= will give priority to =MyPackage/__init__.py= over
   =MyPackage.py=
@@ -785,30 +786,66 @@ Write a simple =5x5= square game of life:
 5. Boundaries are periodic to simulate infinite space (i.e. square at (xmax,y) has its "right" side neighbour
    at (0,y) etc).
 
-You should use " " to denote a dead square and "X" to denote a living one and animate the game with a suitable
-time between iterations. (Do not worry about pretty-printing the game, cleaning the screen between updates
-etc, but please do follow good practice.)
+You should write two functions: one to initialise the game and one to take a step. The initialiser should take
+the size of the game as an argument and return the state of the game. The stepper should take the current
+state as an input and return the new state.
 
-#+BEGIN_SRC python :exports none :results output
+We will later use these components to visualise the game, but for now please just print "X" and " " for the
+cells or just trust your skills and ignore output completely.
+
+An example solution is available in the repo.
+
+#+HEADER: :tangle yes :tangle "codes/python/Game_of_Life.py"
+#+HEADER: :eval never-export :noweb yes
+#+HEADER: :exports none :results output silent
+#+BEGIN_SRC python
+  import doctest
   import numpy
   import time
   import datetime
+  import matplotlib
+  import matplotlib.pyplot
+  import matplotlib.animation
 
   def initial(size=(5,5)):
+      '''Initialise the Game of Life to a random state.
+
+      Doctests
+    
+      >>> state = initial(size=(3,7))
+      >>> type(state),state.dtype,state.shape
+      (<class 'numpy.ndarray'>, dtype('int64'), (3, 7))
+      '''
       cells = numpy.random.randint(0,2,size)
       return cells
 
   def step(cells):
+      '''Take one Game of Life step.
+
+      Doctests
+      >>> step(numpy.array([[1, 0, 0, 1, 1, 0, 0],[0, 0, 0, 1, 0, 0, 0],[0, 0, 0, 1, 0, 1, 1],[1, 0, 0, 0, 0, 1, 1],[0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0]]))
+      array([[0, 0, 0, 1, 1, 0, 0],
+             [0, 0, 1, 1, 0, 1, 1],
+             [1, 0, 0, 0, 0, 1, 0],
+             [1, 0, 0, 0, 1, 1, 0],
+             [0, 0, 0, 0, 0, 0, 1],
+             [0, 0, 0, 0, 0, 0, 0]])
+      '''
       newcells = numpy.copy(cells)
       maxx, maxy = cells.shape[0], cells.shape[1]
       for jj in range(maxy):
           for ii in range(maxx):
               # rule 5 is accounted for by the modulo operators
               # for parallel code MODULO IS EVIL
-              living_neighbours = (cells[(ii+1)%maxx,(jj+0)%maxy] +
-                                   cells[(ii-1)%maxx,(jj+0)%maxy] +
+              living_neighbours = (cells[(ii+1)%maxx,(jj+1)%maxy] +
+                                   cells[(ii+1)%maxx,(jj+0)%maxy] +
+                                   cells[(ii+1)%maxx,(jj-1)%maxy] +
                                    cells[(ii+0)%maxx,(jj+1)%maxy] +
-                                   cells[(ii+0)%maxx,(jj-1)%maxy])
+                                   cells[(ii+0)%maxx,(jj-1)%maxy] +
+                                   cells[(ii-1)%maxx,(jj+1)%maxy] +
+                                   cells[(ii-1)%maxx,(jj+0)%maxy] +
+                                   cells[(ii-1)%maxx,(jj-1)%maxy]
+                                   )
               if (cells[ii,jj] == 1):
                   # this is a living cell
                   if (living_neighbours < 2):
@@ -837,6 +874,3 @@ etc, but please do follow good practice.)
           time.sleep(0.5)
       return
 #+END_SRC
-
-#+RESULTS:
-
