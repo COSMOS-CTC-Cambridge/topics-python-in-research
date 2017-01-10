@@ -11,6 +11,9 @@ def monti_carlo_samples(qfunc,N,qfargs,ndim=1):
 def gaussian_random_qfunc(randval,mean,sigma):
   return mean + sigma*np.sqrt(2)*spc.erfinv(randval*2.0 - 1)
 
+def gaussian(x,mean,sigma):
+  return np.exp(np.sum((x - mean)**2)/(2.0*sigma*sigma))/np.sqrt(2*sigma*sigma*np.pi)
+
  
 # method from xkcd 221
 def get_random_number():
@@ -52,12 +55,12 @@ def markov_chain_conditionaldistribution(qfunc,X0,N,qfargs,ndim=1):
   return X
 
 
-def metropolis_hastings(pdfunc,proposalq,proposalpdf,X0,N,pdfargs,proposalargs):
+def metropolis_hastings(pdfunc,proposalq,proposalpdf,X0,N,pdfargs,proposalargs,ndim=1):
 
   X = np.zeros((N,ndim))
   X[0] = X0
 
-  randval = np.random.rand(N-1)
+  randval = np.random.rand(N-1,ndim)
   U = np.random.rand(N-1)
 
   for t in range(N-1):
@@ -84,13 +87,15 @@ def hit_and_run(pdfunc,proposalq,proposalpdf,X0,N,proposalargs,pdfargs,ndim=1):
   for t in range(N-1):
     direction = randval[t]/np.sqrt(np.sum(randval[t]**2))
     
-    step = proposalq(direction,X[t],proposalargs)
+    step = proposalq(direction,X[t],*proposalargs)
 
     y = X[t] + step*direction
     
-    acceptance = min((pdfunc(y,*pdfargs)*proposalpdf(abs(step),-np.sgn(step),y,*proposalargs))  \
-                      / (pdfunc(X[t],*pdfargs)*proposalpdf(abs(step),np.sgn(step),X[t],*proposalargs)),1)
+    acceptance = (pdfunc(y,*pdfargs)*proposalpdf(abs(step),-np.sign(step),y,*proposalargs))  \
+                      / (pdfunc(X[t],*pdfargs)*proposalpdf(abs(step),np.sign(step),X[t],*proposalargs))
  
+    acceptance = min(acceptance,1)
+
     if U[t] <= acceptance:
       X[t+1] = y
     else:
@@ -215,55 +220,54 @@ if __name__ == '__main__':
   plt.show()
   plt.clf()
 
-<<<<<<< HEAD
-  #MCMC Metropolis-Hasitings
+  #MCMC Metropolis-Hastings
+  N = 10000
+  qfargs = (np.array([0.0,0.0]),3.0)
+  X0 = np.array([0.0,0.0])
+
+  def conditional_guassian(x,y,mean,sigma):
+    return gaussian(x,mean,sigma)
+
+  def conditional_gqfunc(x,y,mean,sigma):
+    return gaussian_random_qfunc(x,mean,sigma)
+
+  def flat(x,*pargs):
+    return 1.0  
+
+  X = metropolis_hastings(flat,conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0,0.0]),3.0),ndim=2)  
+
+  xy = np.vstack([X[:,0],X[:,1]])
+  z = gaussian_kde(xy)(xy)
+ # for i in range(5):
+#    plt.plot(i*np.ones_like(X[i*N//5:]),X[i*N//5:],'o-')
+  plt.scatter(X[:,0],X[:,1],c=z,s=100, edgecolor='')
+  plt.colorbar()
+  plt.show()
+  plt.clf()
+
 
   #MCMC Hit-and-Run
 
+  N = 10000
+  qfargs = (np.array([0.0,0.0]),3.0)
+  X0 = np.array([0.0,0.0])
+
+  def conditional_guassian(step,sgn,x,mean,sigma):
+    return gaussian(x,mean,sigma)
+
+  X = hit_and_run(flat,conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0,0.0]),3.0),ndim=2)
+
+  xy = np.vstack([X[:,0],X[:,1]])
+  z = gaussian_kde(xy)(xy)
+ # for i in range(5):
+#    plt.plot(i*np.ones_like(X[i*N//5:]),X[i*N//5:],'o-')
+  plt.scatter(X[:,0],X[:,1],c=z,s=100, edgecolor='')
+  plt.colorbar()
+  plt.show()
+  plt.clf()
+  
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=======
->>>>>>> 6bd881da23ff470bfa03fb50504139e8e45ec3c8
