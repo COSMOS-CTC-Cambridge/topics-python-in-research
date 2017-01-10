@@ -1,4 +1,5 @@
-***Statistics Libraries
+* Stats and Monti-Carlo
+** Statistics Libraries
 - Due to there prevelance in the emperical/experimental
   sciences interpreted languages often come well equipt
   with statistics libraries for use in data-analysis and
@@ -13,7 +14,7 @@
   - common statistical distributions
 - primerilly this is here and useful, so look through it and
   see what it has
-***Principal Component Analysis
+** Principal Component Analysis
 - Pricipal Component Analysis (PCA) is a technique in data analytics
   used when looking at multidimensional data. The basis that a
   dataset is stored in (normally derived from how it is measured)
@@ -48,7 +49,7 @@
   that after PCA some of the resulting principal components have very
   little variation in them. When compressing datasets these dimensions
   can often be dropped as there is not much information in them.
-***FFT and Correlation
+** FFT and Correlation
 - When developing algorithms scalability is important. This is how the
   time taken for an algorithm to run varies with the number of datapoints.
 - Almost No algorthms scale as O(N) with most scaling with O(N^2). An example
@@ -106,11 +107,53 @@ def smooth(ar1):
                      [1,2,1]])/16.0
   return apply_kernal(ar1,kernal)
 #+END_SRC 
-***Monti-Carlo Algorithms
+** Monti-Carlo Algorithms
+- Monti-Carlo Algorithms are used to model stocastic processes,
+  or to study large parameter spaces. A Monti-Carlo algorithm
+  makes a number of 'draws' and samples the parameter space according
+  to a probability distribution. The advantage of a Monti-Carlo algorithm
+  over say a grid based method is a Monti-Carlo approach will concentrate
+  it's sampling in regions of the parameter space with the highest
+  probability
+- While it is normal to think of probability distributions in terms
+  of probability density functions (for instance normal/gaussian 
+  distributions), this is less useful algorithicaly. Instead it is
+  the quantile function that is useful. A Quantile function is the
+  inverse of a cumlative distribution function. Thus a sample from
+  the parameter space can be obtained by passing a random number in
+  the range [0,1] to the quantile function.
+- The monti-carlo algorithm can be summerised as follows:
+  1) Generate a random number (or array of numbers) in the range [0-1]
+  2) Pass the number (array) to the quantile function to obtain a
+     point in the parameter space
+  3) Repeat for the required number of draws.
+  4) That's it really.
+- Once the sample set has been obtained the density of samples can be 
+  calculated to enable statistics to be calculated on the parameter
+  space.
+** Markov-Chains
+- Markov-Chains are used when a stocastic process depends on the 
+  previous state of the system. This is different from the standard
+  Monti-Carlo approach which assumes that each draw is independent.
+- Markov-Chains can be used to compute random walks.
+- Markov-Chains obey the following recurance relation:
+
+(X_{t+1}|X_u, u <= t) = (X_{t+1}|X_t)
+
+- A Markov-Chain is typically programed as follows:
+  1) Initiallise an X0 from a probability distribribution
+  2) Obtain X_{t+1} either from
+     - Draw from a conditional probability distribution
+       p(X_{t+1}|X_{t})
+     - Draw some U_{t} from a probability distribution and
+       use a recurance relation X_{t+1} = g(X_{t}|U_{t})
+  3) again repeat as nessicary
+** MCMC
+- Markov Chain Monti-Carlo (MCMC) uses Markov chains to construct
+  more effective Monti-Carlo methods. It can be loosely thought of
+  as constructing the monti-carlo sample set using a random walk
+  generated using markov-chains.
 - 
-***Markov-Chains
--
-***MCMC
--
+**Referances
 
 
