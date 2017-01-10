@@ -81,7 +81,7 @@ def hit_and_run(pdfunc,proposalq,proposalpdf,X0,N,proposalargs,pdfargs,ndim=1):
   X = np.zeros((N,ndim))
   X[0] = X0
 
-  randval = np.random.rand(N-1,ndim)
+  randval = np.random.rand(N-1,ndim) - 0.5
   U = np.random.rand(N-1)
 
   for t in range(N-1):
@@ -90,6 +90,8 @@ def hit_and_run(pdfunc,proposalq,proposalpdf,X0,N,proposalargs,pdfargs,ndim=1):
     step = proposalq(direction,X[t],*proposalargs)
 
     y = X[t] + step*direction
+
+    #print step
     
     acceptance = (pdfunc(y,*pdfargs)*proposalpdf(abs(step),-np.sign(step),y,*proposalargs))  \
                       / (pdfunc(X[t],*pdfargs)*proposalpdf(abs(step),np.sign(step),X[t],*proposalargs))
@@ -253,16 +255,26 @@ if __name__ == '__main__':
   X0 = np.array([0.0,0.0])
 
   def conditional_guassian(step,sgn,x,mean,sigma):
-    return gaussian(x,mean,sigma)
+    #y = x - step
+    if np.max(x) > 100.0:
+      return 0
+    elif np.min(x) < -100.0:
+      return 0
+    else:
+      return gaussian(sgn*step,mean,sigma)
 
-  X = hit_and_run(flat,conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0,0.0]),3.0),ndim=2)
+  def to_scalor_conditional_gqfunc(x,y,mean,sigma):
+    xabs = np.sqrt(np.sum(x**2))
+    return gaussian_random_qfunc(xabs,mean,sigma)
+
+  X = hit_and_run(flat,to_scalor_conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0]),0.1),ndim=2)
 
   xy = np.vstack([X[:,0],X[:,1]])
-  z = gaussian_kde(xy)(xy)
+  #z = gaussian_kde(xy)(xy)
  # for i in range(5):
 #    plt.plot(i*np.ones_like(X[i*N//5:]),X[i*N//5:],'o-')
   plt.scatter(X[:,0],X[:,1],c=z,s=100, edgecolor='')
-  plt.colorbar()
+  #plt.colorbar()
   plt.show()
   plt.clf()
   
