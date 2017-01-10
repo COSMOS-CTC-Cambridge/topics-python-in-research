@@ -1,0 +1,116 @@
+***Statistics Libraries
+- Due to there prevelance in the emperical/experimental
+  sciences interpreted languages often come well equipt
+  with statistics libraries for use in data-analysis and
+  hypothesis testing
+- Python is no exception and the main library is =scipy.stats=
+  which contains an extensive range of function for computing
+  data statistics such as,
+  - chi squared
+  - students t test
+  - moments and averages
+  - histograms
+  - common statistical distributions
+- primerilly this is here and useful, so look through it and
+  see what it has
+***Principal Component Analysis
+- Pricipal Component Analysis (PCA) is a technique in data analytics
+  used when looking at multidimensional data. The basis that a
+  dataset is stored in (normally derived from how it is measured)
+  is rarely the most useful basis for analysis, and PCA is a method 
+  of finding this.
+- Real data is often highly correlated and this correlation rarely
+  contains useful information. Preforming PCA on a dataset finds 
+  a set of uncorrelated (or minimally correlated) basis vectors 
+  which can be used to represent the data. This is formulated as
+  an eigenvalue problem on the covarence matrix of the data.
+- As an example multi-channel saterlite images contain data for
+  different wavelengh bands at each pixel typically,
+  - Blue
+  - Green
+  - Red
+  - near IR
+  - mid IR
+- The different channels are highly correlated and contain much
+  of the same information. In this instance the main contribution
+  to all of the above channels will be the absolute intensity which
+  typically corresponds to surface topology. Doing PCA on this will
+  (normally) produce the following channels,
+  - Intesity: Corresponds to topology
+  - High near IR and Green, low Red: Vegetation
+  - Red and IR: Soils
+  - Blue: Iron bearing minerals.
+- The basis resulting from preforming PCA on datasets is refered
+  to as the prinicpal components labeled from 1-number of dimensions
+  with PCA-1 being the dimesion with the greatest variability (i.e.
+  it's the pricipal eigenvector of the covarience matrix) 
+- In addition it is often found for very large dimensional datasets
+  that after PCA some of the resulting principal components have very
+  little variation in them. When compressing datasets these dimensions
+  can often be dropped as there is not much information in them.
+***FFT and Correlation
+- When developing algorithms scalability is important. This is how the
+  time taken for an algorithm to run varies with the number of datapoints.
+- Almost No algorthms scale as O(N) with most scaling with O(N^2). An example
+  of a slow algorithm is matrix inversion which is typically O(N^3), which is
+  why you should never invert matrices (numerically).
+- Fast Fourier Transforms is an algorithm to preform fourier transforms on
+  a dataset. These are very good algorithm as it scales as O(N log N). Many
+  algorthms make use of fast fourier transforms for this reason.
+- python has two implimentations of fft one in =numpy= and one in =scipy=.
+  As a break from form these two are quite different and mostly incompatible,
+  of the two (and again unusually) =numpy.fft= probably better as it has
+  more functionallity and has a slightly more sensible representation of
+  the fourier transformed arrays compared to =scipy.fftpack=. =scipy.fftpack=
+  is supposadly faster though (although it is unlikely you'll notice the
+  difference).
+- In general algorithms that preform arithmatic operations involvion multiple 
+  member of an array (as appose to preforming the operations elementwise) are 
+  generally best done with fft. 
+- Examples of algorithms which can be computed with fft,
+#+BEGIN_SRC python
+import numpy as np
+
+def driv(x):
+  return np.fft.ifft(2.0j*np.pi*np.fft.fft(x))
+#+END_SRC 
+- computes the derivative of x
+#+BEGIN_SRC python
+def correlate(ar1,ar2):
+  far1 = np.fft.fftn(ar1)
+  far2 = np.fft.fftn(ar2)
+  fconvolve = np.dot(far1,far2.conjugate().T)
+  return np.fft.ifftn(fconvolve)
+#+END_SRC
+- correlation of two (equal size) datasets
+#+BEGIN_SRC python
+def resample(x,N):
+  fx = np.fft.fft(x)
+  return np.fft.irfft(x,n=N)
+#+END_SRC
+- resampling of a dataset
+#+BEGIN_SRC python
+def apply_kernal(ar1,kernal):
+  s = ar1.shape
+  far1 = np.fft.fftn(ar1,s=s)
+  fkernal = np.fft.fftn(kernal,s=s)
+  fconvolve = far1*far2
+  return np.fft.ifftn(fconvolve)
+#+END_SRC
+- apply an image kernal to an array, which can be used to smooth
+  an image:
+#+BEGIN_SRC python
+def smooth(ar1):
+  kernal = np.array([[1,2,1],
+                     [2,4,2],
+                     [1,2,1]])/16.0
+  return apply_kernal(ar1,kernal)
+#+END_SRC 
+***Monti-Carlo Algorithms
+- 
+***Markov-Chains
+-
+***MCMC
+-
+
+
