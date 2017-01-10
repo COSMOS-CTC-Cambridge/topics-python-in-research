@@ -105,49 +105,48 @@ def hit_and_run(pdfunc,proposalq,proposalpdf,X0,N,proposalargs,pdfargs,ndim=1):
 
   return X
 
-
 if __name__ == '__main__':
 
   import matplotlib.pylab as plt
-  from scipy.stats import gaussian_kde  
+  from scipy.stats import gaussian_kde
+  import scipy.integrate as itge 
 
-  # basic gaussian monti carlo
+  def basic_gaussian_monti_carlo():
+    # basic gaussian monti carlo
 
-  N = 10000
-  qfargs = (np.array([0.0,0.0]),3.0)
-  X = monti_carlo_samples(gaussian_random_qfunc,N,qfargs,ndim=2)
+    N = 10000
+    qfargs = (np.array([0.0,0.0]),3.0)
+    X = monti_carlo_samples(gaussian_random_qfunc,N,qfargs,ndim=2)
 
-  xy = np.vstack([X[:,0],X[:,1]])
-  z = gaussian_kde(xy)(xy)
+    xy = np.vstack([X[:,0],X[:,1]])
+    z = gaussian_kde(xy)(xy)
 
-  plt.scatter(X[:,0],X[:,1],c=z,s=100, edgecolor='')
-  plt.colorbar()
-  plt.show()
-  plt.clf()
+    plt.scatter(X[:,0],X[:,1],c=z,s=100, edgecolor='')
+    plt.colorbar()
+    plt.show()
+    plt.clf()
 
-  # gaussian random walk
-  N = 100
+  def gaussian_random_walk():
+    # gaussian random walk
+    N = 100
 
-  mean0 = 0.0
-  sigma = 3.0
+    mean0 = 0.0
+    sigma = 3.0
 
-  X0 = monti_carlo_samples(gaussian_random_qfunc,1,(0.0,3.0))
+    X0 = monti_carlo_samples(gaussian_random_qfunc,1,(0.0,3.0))
 
-  X = markov_chain_conditionaldistribution(gaussian_random_qfunc,X0,N,(3.0,))
+    X = markov_chain_conditionaldistribution(gaussian_random_qfunc,X0,N,(3.0,))
 
-  t = np.arange(N)
-  plt.plot(t, X, 'kx-')
-  plt.show()
-  plt.clf()
-
+    t = np.arange(N)
+    plt.plot(t, X, 'kx-')
+    plt.show()
+    plt.clf()
 
   # markov chain recurance relation
   # scattering problem
 
-  import scipy.integrate as itge
-  
   # two body integration
-  def twobody(t, y, mass):  
+  def twobody(t, y, mass):
     dy1 = y[2]
     dy2 = y[3]
     
@@ -165,7 +164,7 @@ if __name__ == '__main__':
     ms = 1.0e-3
     ma = 1.0
     mb = 10.0
-    
+
     reduced_mass = ma*mb/(ma+mb)
 
     # initial condition
@@ -186,7 +185,7 @@ if __name__ == '__main__':
     theta = U[2]
     impact_angle = U[3]
     u = us - va
-    absu = np.sqrt(np.sum(u**2)) 
+    absu = np.sqrt(np.sum(u**2))
 
     deltav_parrallel = 2*ms*absu*((np.sin(theta/2.0))**2)/(ms + ma)
     deltav_per = -ms*absu*np.sin(theta)/(ms + ma)
@@ -200,32 +199,25 @@ if __name__ == '__main__':
 
     return np.array([x0[0],x0[1],v0[0],v0[1]])
 
-     
+  def radom_scatter_problem():
+    N = 1000
 
-  N = 1000
+    ma = 1.0
+    mb = 10.0
+    mass = ma + mb
 
-  ma = 1.0
-  mb = 10.0
-  mass = ma + mb
+    v0 = np.sqrt(mass/10.0)
 
-  v0 = np.sqrt(mass/10.0)
+    X0 = np.array([10.0,0.0,0.0,v0])
 
-  X0 = np.array([10.0,0.0,0.0,v0])
-  
+    qfargs=(np.array([v0,v0,np.pi/4.0,0.0]),np.array([1.0,1.0,1.0,1.0]))
 
+    X = markov_chain_recurance(scatter_recfunc,gaussian_random_qfunc,X0,N,qfargs,ndim=4)
 
-  qfargs=(np.array([v0,v0,np.pi/4.0,0.0]),np.array([1.0,1.0,1.0,1.0]))
+    plt.plot(X[:,0],X[:,1],'bo-')
+    plt.show()
+    plt.clf()
 
-  X = markov_chain_recurance(scatter_recfunc,gaussian_random_qfunc,X0,N,qfargs,ndim=4)
-
-  plt.plot(X[:,0],X[:,1],'bo-')
-  plt.show()
-  plt.clf()
-
-  #MCMC Metropolis-Hastings
-  N = 10000
-  qfargs = (np.array([0.0,0.0]),3.0)
-  X0 = np.array([0.0,0.0])
 
   def conditional_guassian(x,y,mean,sigma):
     return gaussian(x,mean,sigma)
@@ -234,25 +226,23 @@ if __name__ == '__main__':
     return gaussian_random_qfunc(x,mean,sigma)
 
   def flat(x,*pargs):
-    return 1.0  
+    return 1.0
 
-  X = metropolis_hastings(flat,conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0,0.0]),3.0),ndim=2)  
+  def MCMC_Metropolis_Hastings():
+    N = 10000
+    qfargs = (np.array([0.0,0.0]),3.0)
+    X0 = np.array([0.0,0.0])
+    
+    X = metropolis_hastings(flat,conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0,0.0]),3.0),ndim=2)
 
-  xy = np.vstack([X[:,0],X[:,1]])
-  z = gaussian_kde(xy)(xy)
+    xy = np.vstack([X[:,0],X[:,1]])
+    z = gaussian_kde(xy)(xy)
  # for i in range(5):
 #    plt.plot(i*np.ones_like(X[i*N//5:]),X[i*N//5:],'o-')
-  plt.scatter(X[:,0],X[:,1],c=z,s=100, edgecolor='')
-  plt.colorbar()
-  plt.show()
-  plt.clf()
-
-
-  #MCMC Hit-and-Run
-
-  N = 10000
-  qfargs = (np.array([0.0,0.0]),3.0)
-  X0 = np.array([0.0,0.0])
+    plt.scatter(X[:,0],X[:,1],c=z,s=100, edgecolor='')
+    plt.colorbar()
+    plt.show()
+    plt.clf()
 
   def conditional_guassian(step,sgn,x,mean,sigma):
     #y = x - step
@@ -267,16 +257,35 @@ if __name__ == '__main__':
     xabs = np.sqrt(np.sum(x**2))
     return gaussian_random_qfunc(xabs,mean,sigma)
 
-  X = hit_and_run(flat,to_scalor_conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0]),0.1),ndim=2)
+  def MCMC_Hit_and_Run():
+  
+    N = 10000
+    qfargs = (np.array([0.0,0.0]),3.0)
+    X0 = np.array([0.0,0.0])
+  
+    X = hit_and_run(flat,to_scalor_conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0]),0.1),ndim=2)
 
-  xy = np.vstack([X[:,0],X[:,1]])
-  #z = gaussian_kde(xy)(xy)
+    xy = np.vstack([X[:,0],X[:,1]])
+    z = gaussian_kde(xy)(xy)
  # for i in range(5):
 #    plt.plot(i*np.ones_like(X[i*N//5:]),X[i*N//5:],'o-')
-  plt.scatter(X[:,0],X[:,1],c=z,s=100, edgecolor='')
-  #plt.colorbar()
-  plt.show()
-  plt.clf()
+    plt.scatter(X[:,0],X[:,1],c=z,s=100, edgecolor='')
+    plt.colorbar()
+    plt.show()
+    plt.clf()    
+
+
+  #Tests
+
+  basic_gaussian_monti_carlo()
+
+  gaussian_random_walk()
+
+  radom_scatter_problem()
+
+  MCMC_Metropolis_Hastings()
+
+  MCMC_Hit_and_Run()
   
 
 
