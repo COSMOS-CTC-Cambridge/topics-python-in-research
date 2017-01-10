@@ -695,7 +695,8 @@ python provides a =try-except-else-finally= construct. It is best described with
       f.write("this writes one line in the file\n")
       f.write("this writes part of a line ")
       f.write("this finishes the above line\n")
-      f.writelines(["this writes\n", "all the\n", "list elements\n", "in a sequence\n"])
+      f.writelines(["this writes\n", "all the\n", "list elements\n",
+                    "in a sequence\n"])
   print("The file object f is now closed: "+str(f))
   rlen=10
   with open(filename, "r") as f:
@@ -703,7 +704,8 @@ python provides a =try-except-else-finally= construct. It is best described with
       lines=f.readlines()
   print("The file object f is now closed: "+str(f))
   print("The .read method read {l} bytes: {d}".format(l=rlen, d=some_data))
-  print("The .readlines method read from current file location to the end:\n"+"".join(lines))
+  print("The .readlines method read from current file location to the end:\n"+"".join(
+      lines))
   placeholder_please_ignore_me.close()
 #+END_SRC
 
@@ -769,9 +771,10 @@ in a sequence
                attached to the instance (like the =self.flies= below)
 #+BEGIN_SRC python :exports both :results output
   class animalia(object):
-      '''animalia has two class attributes: level and heterotroph; they can be accessed by "self.level" and
-         "self.heterotroph" inside the class and by "instancevariablename.level" and
-         "instancevariablename.heterotroph" just like instance variables.
+      '''animalia has two class attributes: level and heterotroph; they can be
+         accessed by "self.level" and "self.heterotroph" inside the class and
+         by "instancevariablename.level" and "instancevariablename.heterotroph"
+         just like instance variables.
       '''
       level = "kingdom"
       heterotroph = True
@@ -785,8 +788,9 @@ in a sequence
       level = "clade"
       legs = 4
       def eat(self, food):
-          '''Instance method which outputs a description of how dinosaurs eat. The first parameter is by
-          convention called self, but there is no restriction on its name.'''
+          '''Instance method which outputs a description of how dinosaurs eat.
+          The first parameter is by convention called self, but there is no
+          restriction on its name.'''
           print("Eating {f} with a mouth.".format(f=str(food)))
   class tyrannoraptora(dinosauria):
       level = "clade"
@@ -795,14 +799,17 @@ in a sequence
       level = "taxonomical class"
       heart_chambers = 4
       def __init__(self, flight):
-          '''When instantiating an aves we want to define whether it is capable of flight or not and save this
-           information in an instance attribute "flight", note that instance attributes always need to be
-           prefixed by "self." or whatever the name of the first parameter of the method is. Unprefixed
-           variables become method local and cannot be seen from the outside.
+          '''When instantiating an aves we want to define whether it is capable
+          of flight or not and save this information in an instance attribute
+          "flight", note that instance attributes always need to be prefixed by
+          "self." or whatever the name of the first parameter of the method is.
+          Unprefixed variables become method local and cannot be seen from the
+          outside.
           '''
           self.flight = flight
   magpie=aves(True)
-  print("A {name} is an instance of {klass}.".format(name="magpie", klass=magpie.__class__.__name__))
+  print("A {name} is an instance of {klass}.".format(name="magpie",
+                                                     klass=magpie.__class__.__name__))
   inheritancelist = magpie.__class__.mro()
   for idx,_class in enumerate(inheritancelist[:-1]):
       print("The class {child} derives from {parent}.".format(
@@ -1058,8 +1065,6 @@ state as an input and return the new state.
 
 We will later use these components to visualise the game, but for now please just print "X" and " " for the
 cells or just trust your skills and ignore output completely.
-
-An example solution is available in the repo.
 
 #+HEADER: :tangle yes :tangle "codes/python/Game_of_Life.py"
 #+HEADER: :eval never-export :noweb yes
