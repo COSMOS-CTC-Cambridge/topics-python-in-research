@@ -1,0 +1,1147 @@
+* python
+This is mostly based on the official [[https://docs.python.org/3/tutorial/][python tutorial]]: reading the tutorial is highly recommended to make sure
+your python is up to speed.
+
+** Data Structures: lists, tuples, dicts
+- list is just that: a list of things
+  - technically they are instances of classes, like everything in python
+- a string is also a list, an /immutable/ list of characters
+- list is agnostic to its contents
+#+BEGIN_SRC python :session *python3-1* :exports code :results silent
+lista = [1,2,3]
+listb = "I am a string"
+listc = [1, "a", lambda x:x+1]
+lista[2] = 42
+print(listc[2](3))
+#+END_SRC
+- but strings were immutable, ok?
+#+BEGIN_SRC python :exports both :session *python3-1* :results output
+listb[0] = "x"
+#+END_SRC
+
+#+RESULTS:
+: Traceback (most recent call last):
+:   File "<stdin>", line 1, in <module>
+: TypeError: 'str' object does not support item assignment
+
+- lists can be appended to
+  - but prepending is very inefficient, do not do it!
+  - use =collections.deque= if you need to add to both ends
+- lists can also be "added" together (note that =lista+5= would not work as =5= is not a list
+#+BEGIN_SRC python :session *python3-1* :exports code :results silent
+lista.append(4)
+lista = lista+[5]
+print(lista)
+#+END_SRC
+- Other useful features are operator overloading: =2*3+1==7=, but
+#+BEGIN_SRC python :session *python3-1* :exports code :results silent
+'little bunny'+2*' foo'=='little bunny foo foo'
+#+END_SRC
+- we already saw with our little bunny how lists can be multiplied; division and subtraction make no sense to
+  lists, though
+  - there's also the =set= type, where subtraction does the obvious
+  - sets also know intersections, unions etc, but on the other hand they have no =+= or =*=
+- a tuple is like an immutable list
+- and as such can be used as an index or key (mutables cannot)
+- the final essential built-in type is =dict=, short for dictionary
+  - used to create pairs of =key= and =value=
+  - keys must be immutable
+  - values can be anything
+  - keys are /unsorted/
+  - allows quick addition and removal of elements in a dict
+#+BEGIN_SRC python :exports both :results output
+  dictionary = {"key1": "value1",
+                "key2": "value2"}
+  loci = {(1,2): "person 1",
+          (2,42): "person 2",
+          (32,8): "person 3"}
+  for k,v in dictionary.items():
+      print('key "{k}" has value "{v}"'.format(k=k,v=v))
+  coord=(2,42)
+  print("It is {cmp} that there is a person at {coord}.".format(
+      cmp=coord in loci.keys(), coord=coord))
+  b=(1,42)
+  print("Equality of {a} and {b} evaluates to {val}.".format(
+      a=coord, b=b, val=b==coord))
+#+END_SRC
+
+#+RESULTS:
+: key "key1" has value "value1"
+: key "key2" has value "value2"
+: It is True that there is a person at (2, 42).
+: Equality of (2, 42) and (1, 42) evaluates to False.
+
+** Slicing of arrays and strings 
+This will be used heavily, so a few interactive examples
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+x="string"
+x
+#+END_SRC
+
+#+RESULTS:
+: string
+
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+x[0]
+#+END_SRC
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+x[-1]
+#+END_SRC
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+x[2:-2]
+#+END_SRC
+
+** numpy has some extra slicing features
+- For numerical work in python, you should nearly always use the =numpy= package. We'll cover packages later,
+  but for now the numpy package can be used after the command =import numpy=.
+- First, let's see what a numpy array looks like: this is a 2x3x4 array.
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+import numpy
+skewed = numpy.random.random((2,3,4))
+skewed
+#+END_SRC
+We will use =array= in our examples later, we will initially create it as follows
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+array = numpy.arange(0,27)
+array
+#+END_SRC
+but now we give it a new shape
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+array=array.reshape(3,3,3)
+array
+#+END_SRC
+- this is a slice
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+array[-1,:,1:]
+#+END_SRC
+- and striding is also possible, and combining the two: 
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+array[::2,:,2:0:-1]
+#+END_SRC
+- numpy arrays have point-wise operator overloads:
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+array + array
+#+END_SRC
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+array * array
+#+END_SRC
+- nearly any imaginable mathematical function can operate on an array element-wise:
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+array ** 0.5
+#+END_SRC
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+numpy.sinh(array)
+#+END_SRC
+- but numpy matrices are bona fide matrices: 
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+matrix=numpy.matrix(array[0,:,:])
+matrix*matrix
+#+END_SRC
+- numpy matrices have all the basic operations defined, but not
+  necessarily with good performance
+- for prototyping they're fine
+- *performance can be exceptional if numpy compiled suitably*
+- if you import =scipy= you have even more functions
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+import scipy
+import scipy.special
+scipy.special.kn(2,array)
+#+END_SRC
+- I should say that
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+import scipy.fftpack
+scipy.fftpack.fftn(array)
+#+END_SRC
+- performance of the FFT routines also depends on how everytihng was compiled
+- and theoretical physicists may find it amusing that numpy can do Einstein summation (and more)
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+numpy.einsum("iii", array)
+#+END_SRC
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+numpy.einsum("ij,jk", array[0,:,:], array[1,:,:])
+#+END_SRC
+#+BEGIN_SRC python :session *python3-2* :exports both :results value
+numpy.einsum("ijk,ljm", array, array)
+#+END_SRC
+
+** Control flow statements
+#+BEGIN_SRC python :exports both :results output
+if (1>0):
+  print("1 is indeed greater than 0")
+elif (1==0):
+  print("Somehow 1 is equal to 0 now")
+else:
+  print("Weird, 1 is somehow less than 0!")
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output
+for i in [0,1,2,3]:
+  print(str(i))
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output
+for i in range(4):
+  print(str(i))
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output
+for i in range(4):
+  print(str(i), end="")
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output
+for i in range(0,4): print(str(i), end=", ")
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output
+print([i for i in range(0,4)])
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output
+print([str(i) for i in range(0,4)])
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output
+for i in range(4): print(str(i), end=", ")
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output
+print(','.join([str(i) for i in range(0,4)]))
+#+END_SRC
+- there are others, see the [[https://docs.python.org/3/tutorial/][tutorial for python 3]]
+
+*** Functions
+- two types of functions: "normal" and /class methods/
+- syntax is the same; we'll deal with class methods' peculiarities in a moment
+#+BEGIN_SRC python :session *python3-3* :exports both :results value
+  def findzeros(a, b, c):
+      '''Find the real root(s) of "a x^2 + b x + c".
+      >>> findzeros(1,4,3)
+      (-1.0, -3.0)
+      >>> findzeros(1,2,-3)
+      (1.0, -3.0)
+      >>> findzeros(1,-2,-3)
+      (3.0, -1.0)
+      >>> findzeros(1,-4,3)
+      (3.0, 1.0)
+      >>> findzeros(1,0,9)[0]+3,findzeros(1,0,9)[1]+3
+      ((3+3j), (3-3j))
+      >>> findzeros(2,8,6)
+      (-1.0, -3.0)
+      >>> findzeros(1,-2,1)
+      (1.0, 1.0)
+      '''
+      root1 = (-b + (b**2 - 4 * a * c)**0.5)/(2*a)
+      root2 = (-b - (b**2 - 4 * a * c)**0.5)/(2*a)
+      return (root1,root2)
+#+END_SRC
+- if the first line after the function definition is a string or multiline string, like here, it will become
+  the function's /docstring/
+  - this is a very good way of documenting your functions
+  - you should rarely need other documentation in a function: it is likely too complex or long if you feel you
+    need comments inside it
+  - sometimes a clever algorithmic trick or implementation requires further comments
+  - a docstring is also viewable with =help(findzeros)= or
+#+BEGIN_SRC python :session *python3-3* :exports both :results value
+  print(findzeros.__doc__)
+#+END_SRC
+- a function can have /default values/ for its parameters (unlike C/Fortran)
+#+BEGIN_SRC python :session *python3-3* :exports code :results silent
+  import urllib
+  import urllib.request
+  def get_url(url='http://www.cam.ac.uk/'):
+      data=[]
+      with urllib.request.urlopen(url) as response:
+          charset = response.headers.get_content_charset()
+          for line in response:
+              data.append(line.decode(charset))
+      return data
+#+END_SRC
+- just to show this works (the IPython bits are jupyter/IPython special modules, disregard for now)
+#+BEGIN_SRC python :session *python3-3* :exports both :results output
+from IPython.display import display, HTML
+chart = HTML("".join(get_url()))
+display(chart)
+#+END_SRC
+
+#+RESULTS:
+: 
+: >>> <IPython.core.display.HTML object>
+
+- functions can have arbitrary argument lists, too
+- the name =args= is not special, just a convention
+#+BEGIN_SRC python :exports both :results output
+  def multiply(*args):
+      res=1
+      for a in args:
+          res = res*a
+      return res
+  print(multiply())
+  print(multiply(1))
+  print(multiply(1,2))
+  print(multiply(1,2,3))
+  print(multiply(42,42))
+#+END_SRC
+
+#+RESULTS:
+: 1
+: 1
+: 2
+: 6
+: 1764
+
+- and also unspecified /keyword arguments/ which become a dict inside the function
+- in fact in the previous example, one could call =get_url("http://www.python.org")= without the =url== part:
+  not so with =**kwargs=
+#+BEGIN_SRC python :session *python3-4* :exports code :results silent
+  def func_with_kwargs(**kwargs):
+      for key in kwargs:
+          print("The key {key:20} has the value {value:20}.".format(
+              key=key, value=kwargs[key]))
+      return
+#+END_SRC
+- these are used just as =url= above (it is actually also a keyword argument just a named one)
+#+BEGIN_SRC python :session *python3-4* :exports both :results output
+  func_with_kwargs(foo=8, bar="9", foobar=89)
+#+END_SRC
+
+#+RESULTS:
+: The key foo                  has the value                    8.
+: The key bar                  has the value 9                   .
+: The key foobar               has the value                   89.
+
+- note how the alignment of strings and numbers is different in =print=!
+- a function can mix and match all types of arguments, but
+  - but order matters in definition: the following function has all types of arguments and the order of the
+    types of arguments is the only allowed one
+  - order also matters when calling: pay attention to the numbers 5 and 6 in the example
+#+BEGIN_SRC python :session *python3-4* :exports code :results silent
+  def many_args(a, b, c=42, d=0, *e, **f):
+      print("a = "+str(a))
+      print("b = "+str(b))
+      print("c = "+str(c))
+      print("d = "+str(d))
+      for i,E in enumerate(e): print("e[{idx}] = ".format(idx=i) + str(E))
+      for F in f: print("f[{key}] = ".format(key=F) + str(f[F]))
+#+END_SRC
+#+BEGIN_SRC python :session *python3-4* :exports both :results output
+  many_args(1, 2, 3, 4, 5, 6, bar=8)
+  many_args(1, 2, d=3, c=4, bar=8)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+a = 1
+b = 2
+c = 3
+d = 4
+e[0] = 5
+e[1] = 6
+f[bar] = 8
+a = 1
+b = 2
+c = 4
+d = 3
+f[bar] = 8
+#+end_example
+
+- note how =c= and =d= can be passed in any order
+- but these do not work
+#+BEGIN_SRC python :session *python3-4* :exports both :results output
+  many_args(1, 2, d=3, c=4, 6, bar=8)
+#+END_SRC
+
+#+RESULTS:
+: File "<stdin>", line 1
+: SyntaxError: non-keyword arg after keyword arg
+
+#+BEGIN_SRC python :session *python3-4* :exports both :results output
+  many_args(1, 2, 6, d=3, c=4, bar=8)
+#+END_SRC
+
+#+RESULTS:
+: Traceback (most recent call last):
+:   File "<stdin>", line 1, in <module>
+: TypeError: many_args() got multiple values for argument 'c'
+
+- so cannot pass =*args= style parameters and named keyword arguments at the same time except in the right
+  order
+- but then again, the unnamed keyword arguments can be mixed with the named ones
+#+BEGIN_SRC python :session *python3-4* :exports both :results output
+  many_args(1, 2, bar=8, d=3, c=4)
+#+END_SRC
+
+#+RESULTS:
+: a = 1
+: b = 2
+: c = 4
+: d = 3
+: f[bar] = 8
+
+*** Anonymous Function
+- also known as a /lambda/
+- a breeze from the land of functional programming, very useful
+- especially with =reduce= and =map= operating on lists
+#+BEGIN_SRC python :exports both :results output
+  from __future__ import print_function
+  list_of_values = ["a", "b", "c", "abc"]
+  uppercase_list_of_values = map(lambda x: x.upper(), list_of_values)
+  print("uppercase_list_of_values = ",end="")
+  print("".join(uppercase_list_of_values))
+  uppercase_list_of_values_without_lambda = [x.upper() for x in list_of_values]
+  print("uppercase_list_of_values_without_lambda = ",end="")
+  print(uppercase_list_of_values_without_lambda)
+  import functools
+  joined_list_of_values = functools.reduce(lambda x,y: x+y, list_of_values, "")
+  print("joined_list_of_values = ",end="")
+  print(joined_list_of_values)
+#+END_SRC
+
+#+RESULTS:
+: uppercase_list_of_values = ABCABC
+: uppercase_list_of_values_without_lambda = ['A', 'B', 'C', 'ABC']
+: joined_list_of_values = abcabc
+
+- the two lambdas are of course equivalent to named functions but avoid polluting the namespace and are easier
+  to read as the are defined right where they are used
+  - and cannot be used elsewhere so often reused functions should not normally be lambdas
+#+BEGIN_SRC python :session *python3-3* :exports code :results silent
+def uppercase(x):
+    return x.upper()
+def joinstr(x,y):
+    return x+y
+#+END_SRC
+
+** Exercises
+*** Random walkers
+Write a code where two people perform a random walk along a rectangular =10x10= grid of coordinates, stopping
+when the hit (occupy same coordinates) each other for the first time.
+#+BEGIN_SRC python :exports none :results silent :tangle yes :tangle codes/python/random_walker_exercise.py
+  import numpy
+  minx,maxx,miny,maxy = 0,9,0,9
+  persons = {"A": (minx,miny),
+             "B": (maxx,maxy)}
+  while (persons["A"] != persons["B"]):
+      xs = numpy.random.randint(minx,maxx+1,2)
+      ys = numpy.random.randint(miny,maxy+1,2)
+      persons["A"]=(xs[0],ys[0])
+      persons["B"]=(xs[1],ys[1])
+  print("Persons A and B bumped to each other at {}.".format(str(persons["A"])))
+#+END_SRC
+
+** Good Programming Practice: modularity
+- a rule of thumb: /a single modular piece of code fits on screen all at the same time/
+- split code into different files appropriately
+  - in C/Fortran use a makefile to help compiling and linking them together
+  - in python, codes in separate files become /modules/
+
+** Modules
+- one has to /import/ a module before it can be used
+- python comes with a /standard library/ of modules, see
+  [[https://docs.python.org/3/library/index.html][python standard library reference]] for details
+- one such module is called =sys= and it know, e.g. your python version and more importantly, it holds the
+  /module search path/: the list of directories python looks for =X= when it encounters a statement =import X=
+  or =from X import Y=
+#+BEGIN_SRC python :exports both :results output
+  import sys
+  print("Your python version is "+sys.version)
+  print("Your python module search path is "+",".join(sys.path))
+#+END_SRC
+
+#+RESULTS:
+: Your python version is 3.4.2 (default, Oct  8 2014, 10:45:20) 
+: [GCC 4.9.1]
+: Your python module search path is ,/home/juhaj/venv_teaching/lib/python3.4,/home/juhaj/venv_teaching/lib/python3.4/plat-x86_64-linux-gnu,/home/juhaj/venv_teaching/lib/python3.4/lib-dynload,/usr/lib/python3.4,/usr/lib/python3.4/plat-x86_64-linux-gnu,/home/juhaj/venv_teaching/lib/python3.4/site-packages,/usr/lib/python3/dist-packages,/usr/local/lib/python3.4/dist-packages
+
+- the "current" directory is /always/ searched first
+  - "current" means the working directory for interactively started interpreter (i.e. without a script argument)
+  - "current" means the directory containing the script being ran for non-interactive use
+  - this can be confusing: Suppose =script.py= contains the statement =import z= and =z.py= is located in
+    =/scriptdir= along with =script.py=. Then =cd /directory; python /scriptdir/script.py= will find =z=, but
+    =cd /directory; python= followed by an interactive =import z= will fail yet =cd /scriptdir; python=
+    followed by an interactive =import z= will again work:
+#+BEGIN_SRC python :exports none :tangle yes :tangle "codes/python/MyModule.py" :results silent
+  module_internal_variable = 42
+  def function_inside_a_module(parameter):
+    return parameter+1
+#+END_SRC
+  - for example we have a module called =MyModule.py= in =codes/python/MyModule.py= so let's import that  
+#+BEGIN_SRC python :tangle yes :tangle "codes/python/ImportMyModule.py" :exports both :results output :session *python3-6*
+  import os
+  print("Current working directory is "+os.getcwd())
+  import MyModule
+  print("The variable MyModule.module_internal_variable has the value "+str(MyModule.module_internal_variable))
+#+END_SRC
+
+#+RESULTS:
+: 
+: Current working directory is /home/juhaj/IPCC/teaching/topics-python-in-research
+: Traceback (most recent call last):
+:   File "<stdin>", line 1, in <module>
+: ImportError: No module named 'MyModule'
+: Traceback (most recent call last):
+:   File "<stdin>", line 1, in <module>
+: NameError: name 'MyModule' is not defined
+
+  - so that was the latter case of =z= above, now run it as a script
+#+BEGIN_SRC python :exports both :results output
+  import subprocess
+  subprocess.Popen(["python", "codes/python/ImportMyModule.py"]).wait()
+#+END_SRC
+
+#+RESULTS:
+: Current working directory is /home/juhaj/IPCC/teaching/topics-python-in-research
+: The variable MyModule.module_internal_variable has the value 42
+
+- the search path is partially system dependent, but there's always =PYTHONPATH= which is searched before the
+  system depedent path, so we can fix this
+#+BEGIN_SRC python :exports both :results output
+  import os
+  import sys
+  print("Current working directory is "+os.getcwd())
+  sys.path = ["codes/python"] + sys.path
+  import MyModule
+  print("The variable MyModule.module_internal_variable has the value "+str(MyModule.module_internal_variable))
+#+END_SRC
+
+#+RESULTS:
+: Current working directory is /home/juhaj/IPCC/teaching/topics-python-in-research
+: The variable MyModule.module_internal_variable has the value 42
+
+** Namespaces
+- each variable lives in a /namespace/
+  - like the above =MyModule.module_internal_variable= the part(s) before the dot specifies a namespace
+- when you reference a variable, python searches for the name in several namespaces, starting from the most
+  specific one:
+  - the innermost scope (current module/source file, class, function)
+  - the scopes of any enclosing functions, which are searched starting with the nearest enclosing scope
+  - the current module's global names
+  - the outermost scope is the namespace containing built-in names
+*** Good Programming Practice: it is a good idea not to "pollute" your namespace
+- removes name clashes (relevant especially for short variable names like =temp= or =i=)
+- protects from accidental modifications of wrong variables (e.g. due to typo etc)
+  - note that python does not provide hard protection: there is *always* a way to alter the value of everything
+- makes code easier to read, undersand, modify, and track what's happening to variables
+- please do not =from x import *= it pollutes the enclosing namespace
+** Some standard modules
+- we have already encoutered the =os= and =sys= modules: they are part of the python standard library
+  - of particular interest might be =sys.stdin=, =sys.stdout=, and =sys.stderr=
+- =re= :: regular expression facilities, e.g.
+#+BEGIN_SRC python
+  import re
+  re.sub(r'(\b[a-z]+ )(\1)+', r'\1', 'please remove repeated repeated repeated words')
+#+END_SRC
+- =urllib= :: we have already seen what this can do: access data using a URL
+- =datetime= :: everything you ever wanted to do with dates and timezone-less times between 0.0.0 CE and
+                31.12.9999 CE
+  - for proper timezone support, an external module called =pytz= is needed
+- =timeit= :: you may want to use =timeit.Timer()= instead of the next module for some performance measurements
+- =cProfile= :: performance profiler, we'll get to know this later
+- =doctest= :: a handy code quality checker which runs tests embedded into the docstrings: you will notice I
+               already hid some of these in the earlier examples
+#+BEGIN_SRC python :exports both :results silent :session *python3-7*
+  import doctest
+
+  def daxpy(a, x, y):
+      '''
+      Calculate a*x + y.
+      >>> daxpy(2.0,3.0,4.0)
+      10.0
+      '''
+      return a*x+y
+
+
+  def daxpy_fails(a, x, y):
+      '''
+      Calculate a*x + y.
+      >>> daxpy_fails(2.0,3.0,4.0)
+      10.0
+      '''
+      return a*x+y+1
+#+END_SRC
+#+BEGIN_SRC python :session *python3-7* :exports both :results output
+  doctest.testmod()
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+**********************************************************************
+File "__main__", line 4, in __main__.daxpy_fails
+Failed example:
+    daxpy_fails(2.0,3.0,4.0)
+Expected:
+    10.0
+Got:
+    11.0
+**********************************************************************
+1 items had failures:
+   1 of   1 in __main__.daxpy_fails
+***Test Failed*** 1 failures.
+TestResults(failed=1, attempted=2)
+#+end_example
+
+- =unittest= :: a more sophisticated testing environment; an even better one is available in an external
+                module called =nose=
+*** Packages: sets of modules organised in directories
+- example
+#+BEGIN_SRC python :exports both :results output
+import scipy
+import scipy.fftpack
+print(scipy.fftpack.fftn([1,2,3]))
+#+END_SRC
+
+#+RESULTS:
+: [ 6.0+0.j        -1.5+0.8660254j -1.5-0.8660254j]
+
+- =scipy= is both the name of the package and its "main" module; this module contains a submodule called
+  =fftpack=, which in turn contains a function =fftn= which simply calculates the FFT of the argument of
+  arbitrary dimension
+- such packages should be organised in directory trees 
+#+BEGIN_SRC ditaa :file images/python_package_structure.png :cmdline -E
+  MyPackage/                      Top-level package
+    +-- __init__.py               Initialiser of the package
+    +-- initial/                  Subpackage for initial conditions
+    |     +---- __init__.py       Initialiser of the submodule
+    |     +---- sphere.py         This appears as MyPackage.sphere
+    +-- dynamics/                 Subpackage for dynamics
+          +---- __init__.py       Initialiser of the submodule
+          +---- theta.py          Implicit Theta method timestepper
+          +---- imex.py           Implicit-Explicit Runge-Kutta
+#+END_SRC
+
+#+RESULTS:
+[[file:images/python_package_structure.png]]
+
+- *N.B.* when searching for a module to import =import MyPackage= will give priority to =MyPackage/__init__.py= over
+  =MyPackage.py=
+- =import MyPackage= will load and execute =MyPackage/__init__.py=: this is a magic file-name
+- likewise =import MyPackage.initial= will execute =import MyPackage/initial/__init__.py=
+  - note that =import MyPackage.initial= will implicitly also =import MyPackage=
+  - some packages have convoluted directory structures and/or submodule handling which may prevent you from
+    importing a submodule before explicitly importing the supermodule
+- importing siblings must be done using the syntax =from MyPackage import Sibling=,
+  e.g. =dynamics/__init__.py= imports =initial= with =from MyPackage import initial=
+- the package =MyPackage= is available in the repo in =examples= directory
+
+** Exceptions
+Whenever things go horribly wrong, python interpreter will /raise/ and /exception/. If unhandled, these
+will cause the interpreter to exit with error, but not all errors are fatal, some can be handled. For this,
+python provides a =try-except-else-finally= construct. It is best described with an example
+#+BEGIN_SRC python :exports both :results output
+  a="string"
+  b=10
+  try:
+      c = a + b
+  except TypeError as arbitrary_variable_name:
+      print("A TypeError was raised with the follwing arguments:")
+      for i,arg in enumerate(arbitrary_variable_name.args):
+          print("Argument #{i}: {a}".format(i=i, a=arg))
+      c = str(a) + str(b)
+  except AttributeError as ae:
+      print('Our example "c = a + b" can never raise this error.')
+      print('But this is how you except many different types of exceptions if you need to treat them differently.')
+  else:
+      print("This will not execute as we ran into the except: -clause")
+  finally:
+      print('This is executed as the very last thing of the construct. It is *always* executed.')
+      print('As you can see, we have now set c to '+c)
+  try:
+      c = a + a
+  except (TypeError, AttributeError, OSError) as arbitrary_variable_name:
+      print("We do not come here, but this is how to handle multiple exception types in one handler.")
+  else:
+      print("This will now execute as we did not run into the except: -clause")
+  finally:
+      print('This is executed as the very last thing of the construct. It is *always* executed.')
+      print('As you can see, we have now set c to '+c)
+#+END_SRC
+
+#+RESULTS:
+: A TypeError was raised with the follwing arguments:
+: Argument #0: Can't convert 'int' object to str implicitly
+: This is executed as the very last thing of the construct. It is *always* executed.
+: As you can see, we have now set c to string10
+: This will now execute as we did not run into the except: -clause
+: This is executed as the very last thing of the construct. It is *always* executed.
+: As you can see, we have now set c to stringstring
+
+- if you ever need access the attributes of "catch all" exception, you cannot use the =except X as Y=
+  construct, but python provides the exception object via =sys.exc_info()= if necessary:
+#+BEGIN_SRC python :exports both :results output
+  a="string"
+  b=10
+  import sys
+  try:
+      c = a + b
+  except:
+      exc = sys.exc_info()
+      print("An Exception of type {} was raised with the following arguments:".format(exc[0]))
+      for i,a in enumerate(exc[1].args):
+          print("Argument #{i}: {a}".format(i=i, a=a))
+      c = str(a) + str(b)
+#+END_SRC
+
+#+RESULTS:
+: An Exception of type <class 'TypeError'> was raised with the following arguments:
+: Argument #0: Can't convert 'int' object to str implicitly
+
+- the traceback is also available as the third element of the tuple: =exc[2]=
+
+** On I/O
+- you should rarely, if ever, need to read a file using standard python routines
+  - high performance (numerical) libraries are always more efficient for actual data
+  - for "normal" small files, there is almost always a more high-level approach available either in standard
+    python (like =sqlite3= module for sqlite databases or =email= for email messages etc)
+  - sometimes =numpy= can be used to import even non-numerical data (=numpy.genfromtxt=)
+- when you still need the low-level file operations, you should almost always use the =with= statement
+#+BEGIN_SRC python :exports both :results output
+  import tempfile
+  placeholder_please_ignore_me=tempfile.NamedTemporaryFile()
+  filename = placeholder_please_ignore_me.name
+  print(filename)
+  with open(filename, "w") as f:
+      f.write("this writes one line in the file\n")
+      f.write("this writes part of a line ")
+      f.write("this finishes the above line\n")
+      f.writelines(["this writes\n", "all the\n", "list elements\n",
+                    "in a sequence\n"])
+  print("The file object f is now closed: "+str(f))
+  rlen=10
+  with open(filename, "r") as f:
+      some_data=f.read(rlen)
+      lines=f.readlines()
+  print("The file object f is now closed: "+str(f))
+  print("The .read method read {l} bytes: {d}".format(l=rlen, d=some_data))
+  print("The .readlines method read from current file location to the end:\n"+"".join(
+      lines))
+  placeholder_please_ignore_me.close()
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+/tmp/tmpt50l2ig7
+The file object f is now closed: <_io.TextIOWrapper name='/tmp/tmpt50l2ig7' mode='w' encoding='UTF-8'>
+The file object f is now closed: <_io.TextIOWrapper name='/tmp/tmpt50l2ig7' mode='r' encoding='UTF-8'>
+The .read method read 10 bytes: this write
+The .readlines method read from current file location to the end:
+s one line in the file
+this writes part of a line this finishes the above line
+this writes
+all the
+list elements
+in a sequence
+
+#+end_example
+
+- the standard library provides a module =io= and class =io.StringIO= which for all practical
+  purposes is a file, but only exists in memory
+- the =mmap= module provides access to /memory mapped/ files (also called /memmap/)
+  - these look and feel like both strings and files (but are mutable unlike strings)
+  - these are files which are accessed as if they were memory
+  - they are only loaded into memory as needed, so you can memmap as big files as you wish without risk of
+    running out of memory
+  - but be careful, making copies etc of the data will *not* stay in the memmap file, so you may run out if
+    you are not careful
+- a couple of other useful I/O modules are =json= and =pickle=
+  - =json= is the de facto standard data interchange format over internet and across architectures and
+    programming languages
+  - =json= is not high performance or parallel, do not use with bigger than kB-range data
+  - =pickle= is python's =json= on steroids; in particular it can and will serialise python objects, but if
+    you write client-server-type programs and pass data using =pickle= be mindful of the fact that untrusted
+    clients can /send you arbitrary code/ to be executed without explicit execution
+    - not so with =json= unless you explicitly pass data from =json= to be executed
+#+BEGIN_SRC python :exports both :results output
+  import pickle
+  import numpy
+  data=numpy.random.random(1000)
+  pickled=pickle.dumps(data)
+  print("Data size: {len} (plus small python object overhead)".format(len=data.nbytes))
+  print("Pickled size: {len}".format(len=len(pickled)))
+  unpickled=pickle.loads(pickled)
+  print("Note the type: "+str(type(unpickled)))
+#+END_SRC
+
+#+RESULTS:
+: Data size: 8000 (plus small python object overhead)
+: Pickled size: 8159
+: Note the type: <class 'numpy.ndarray'>
+
+** Classes
+*** Terminology
+- class :: defines a type of object, kind of glorified struct or you can think of birds
+- instance :: a representative of a class, think of birds again
+- inheritance :: classes form an "ancestry" tree, where "children" inherit "parents", but this is a very
+                 liberal family so a child can have an arbitrary number of parents (including 0 in python v2,
+                 but in v3 all children implicitly inherit "object")
+- method :: basically a function defined inside the namespace of a class
+- attribute :: a variable defined on the class namespace is a /class attribute/, be careful: only use
+               immutables here; a variable defined inside a class method is an /instance attribute/ and gets
+               attached to the instance (like the =self.flies= below)
+#+BEGIN_SRC python :exports both :results output
+  class animalia(object):
+      '''animalia has two class attributes: level and heterotroph; they can be
+         accessed by "self.level" and "self.heterotroph" inside the class and
+         by "instancevariablename.level" and "instancevariablename.heterotroph"
+         just like instance variables.
+      '''
+      level = "kingdom"
+      heterotroph = True
+  class plantae(object):
+      level = "kingdom"
+      autotroph = True
+  class chordata(animalia):
+      level = "phylum"
+      notochord = True
+  class dinosauria(chordata):
+      level = "clade"
+      legs = 4
+      def eat(self, food):
+          '''Instance method which outputs a description of how dinosaurs eat.
+          The first parameter is by convention called self, but there is no
+          restriction on its name.'''
+          print("Eating {f} with a mouth.".format(f=str(food)))
+  class tyrannoraptora(dinosauria):
+      level = "clade"
+      hollow_tail = True
+  class aves(tyrannoraptora):
+      level = "taxonomical class"
+      heart_chambers = 4
+      def __init__(self, flight):
+          '''When instantiating an aves we want to define whether it is capable
+          of flight or not and save this information in an instance attribute
+          "flight", note that instance attributes always need to be prefixed by
+          "self." or whatever the name of the first parameter of the method is.
+          Unprefixed variables become method local and cannot be seen from the
+          outside.
+          '''
+          self.flight = flight
+  magpie=aves(True)
+  print("A {name} is an instance of {klass}.".format(name="magpie",
+                                                     klass=magpie.__class__.__name__))
+  inheritancelist = magpie.__class__.mro()
+  for idx,_class in enumerate(inheritancelist[:-1]):
+      print("The class {child} derives from {parent}.".format(
+          child=_class.__name__, parent=inheritancelist[idx+1].__name__))
+#+END_SRC
+
+#+RESULTS:
+: A magpie is an instance of aves.
+: The class aves derives from tyrannoraptora.
+: The class tyrannoraptora derives from dinosauria.
+: The class dinosauria derives from chordata.
+: The class chordata derives from animalia.
+: The class animalia derives from object.
+
+*** Decorators and higher order functions
+- A higher order function is a function which returns a function, like
+#+BEGIN_SRC python :exports both :results silent :session *python3-9*
+  def hello():
+      print('''I'm a lowly function, returning an non-function object.''')
+      return None
+
+  def HigherOrder(param):
+      print('''I'm a higher order function: I return a function object.''')
+      return param
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output :session *python3-9*
+  this_is_a_function=HigherOrder(hello)
+  print("See what got printed!")
+  this_will_be_None=this_is_a_function()
+#+END_SRC
+
+#+RESULTS:
+: I'm a higher order function: I return a function object.
+: See what got printed!
+: I'm a lowly function, returning an non-function object.
+
+- note that the output of =hello= only appears at the very end: neither =def= nor =HigherOrder(hello)= causes
+  the function body of =hello= to be executed
+- N.B. =this_is_a_function= is the function =hello= /at the time the call to/ =HigherOrder=: later redefinition
+  of =hello= does not change =this_is_a_function=
+#+BEGIN_SRC python :exports both :results silent :session *python3-9*
+  def hello(): 
+      return 42
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output :session *python3-9*
+  newres=hello()
+  oldres=this_is_a_function()
+  print(newres==oldres)
+#+END_SRC
+
+#+RESULTS:
+: 
+: I'm a lowly function, returning an non-function object.
+: False
+
+- a better version of this is to use a /closure/: a function object that remembers values in enclosing scopes
+  regardless of whether those scopes are still present in memory
+  - I'm lying of course: they are still in memory but there is no other way to access them
+#+BEGIN_SRC python :exports both :results silent :session *python3-a*
+  def HigherOrder(param):
+      print('''I'm a higher order function: I return a function object.''')
+      x = 42
+      def hello2():
+          print('''The value of param is {} but x = {}'''.format(param, x))
+          return None
+      return hello2
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output :session *python3-a*
+  this_is_a_closure=HigherOrder(24)
+  print("See what got printed!")
+  this_will_be_None=this_is_a_closure()
+  print('Note how "hello2" does not even exist now (in this scope):', hello2)
+#+END_SRC
+
+#+RESULTS:
+: I'm a higher order function: I return a function object.
+: See what got printed!
+: The value of param is 24 but x = 42
+: Traceback (most recent call last):
+:   File "<stdin>", line 1, in <module>
+: NameError: name 'hello2' is not defined
+
+- perhaps the most usual use of higher order functions is to create a /decorator/
+- a typical example is to have "read-only" class attributes
+  - N.B. these are not really read-only, python does not have such a concept, but you will have to go through
+    some loops and hoops in order to write to them so it protects from bugs.
+- there is a built-in higher order function for this, =property=, and also a short-hand syntax for wrapping
+  functions in higher-order functions
+- the following is a rewrite of the previous example with =HigherOrder=: note how =hello= itself now takes the
+  place of =this_is_a_function= and that "pure" =hello= no longer exists: it is always wrapped in
+  =HigherOrder=
+#+BEGIN_SRC python :exports both :results output :session *python3-b*
+  def HigherOrder(param):
+      print('''I'm a higher order function: I return a function object.''')
+      return param
+
+  @HigherOrder
+  def hello():
+      print('''I'm a lowly function, returning an non-function object.''')
+      return None
+#+END_SRC
+
+#+RESULTS:
+: 
+: ... ... >>> ... ... ... ... I'm a higher order function: I return a function object.
+
+#+BEGIN_SRC python :exports both :results output :session *python3-b*
+  this_will_be_None=hello()
+#+END_SRC
+
+#+RESULTS:
+: I'm a lowly function, returning an non-function object.
+
+- this is how =property= is usually used
+#+BEGIN_SRC python :exports both :results silent :session *python3-b*
+  class MyClass(object):
+      def __init__(self, val):
+          self._prop = val
+      @property
+      def prop(self):
+          return self._prop
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output :session *python3-b*
+  my_instance = MyClass(42)
+  print(my_instance.prop)
+  my_instance.prop = 0
+#+END_SRC
+
+#+RESULTS:
+: 
+: 42
+: Traceback (most recent call last):
+:   File "<stdin>", line 1, in <module>
+: AttributeError: can't set attribute
+
+- =property= is actually a class, which eats functions in its =__init__=
+- it also has methods =setter=, =getter=, =deleter= which can be used to allow setting and deleting such
+  guarded attributes 
+  - =@property= is just a shorthand for specifying the =getter=
+  - all of this is just shorthands: see =help(property)= for the longer syntax
+#+BEGIN_SRC python :exports both :results silent :session *python3-b*
+  class MyClass2(object):
+      def __init__(self, val):
+          self._prop = val
+      @property
+      def prop(self):
+          return self._prop
+      @prop.setter
+      def prop(self,x):
+          self._prop = x
+#+END_SRC
+#+BEGIN_SRC python :exports both :results output :session *python3-b*
+  my_instance = MyClass2(42)
+  print(my_instance.prop)
+  my_instance.prop = 0
+  print(my_instance.prop)
+#+END_SRC
+
+#+RESULTS:
+: 
+: 42
+: >>> 0
+
+** Little Bits
+- =dir()= is a nice way to look at your namespace
+  - can also be used to check if variable exists: ="variablename" in dir()=
+- constructs like =for x in range(0,4)= can use an /iterator/ or /generator/ to produce the values for x
+- have a look at python's docs for [[https://docs.python.org/3/glossary.html#term-iterator][iterator]] and [[https://docs.python.org/3/glossary.html#index-14][generator]]: we do not delve into them in this course but they
+  are terribly useful
+
+** Exercises
+
+*** More unit testing
+- Implement more unit tests for some of the above function(s)
+
+*** A tree using classes
+- Create to a family tree for =magpie= which contains parent class instances
+
+*** Fibonacci
+How could one lecture programming without writing a Fibonacci code? By having students write it, of course, so
+please test your python skills by writing a program which computes the 100 first Fibonacci numbers and prints
+them out as a comma and space separated list, like =1, 1, 2, 3= etc splitting the output into lines of as
+close as possible but no more than 80 characters long.
+
+Remember, this course is also about good programming practices, so make sure your Fibonacci-generator is
+reusable and has unit tests.
+
+#+BEGIN_SRC python :exports none :results silent :tangle yes :tangle codes/python/fibonacci_exercise.py
+  def fib(n):
+      '''
+      Unit tests with doctest module
+      >>> fib(0)
+      []
+      >>> fib(1)
+      [1]
+      >>> fib(2)
+      [1, 1]
+      >>> fib(3)
+      [1, 1, 2]
+      >>> fib(-1)
+      []
+      '''
+      fibn=[1]*min(n,2)
+      for i in range(2,n):
+          fibn.append(fibn[-2]+fibn[-1])
+      return fibn
+#+END_SRC
+
+#+BEGIN_SRC python :exports none :results silent :tangle yes :tangle codes/python/fibonacci_exercise.py
+  def split_to_lines(inlist):
+      '''
+      Split a list to strings of no more than 80 characters each.
+      
+      Unit tests using doctest
+
+      >>> split_to_lines(fib(31))
+      ['1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181,', '6765, 10946, 17711, 28657, 46368, 75025, 121393, 196418, 317811, 514229, 832040,', '1346269']
+      '''
+      sep=", "
+      inlist=sep.join([str(x) for x in inlist])
+      lines=[]
+      start=0
+      while (start<len(inlist)):
+          newstart=inlist[start:start+80].rfind(",")
+          if (newstart == -1):
+              newstart = len(inlist)
+          else:
+              if (len(inlist[start:start+80])<80):
+                  newstart=len(inlist)
+              else:
+                  newstart = start + newstart + len(sep)
+          lines.append(inlist[start:newstart].strip())
+          start=newstart
+      return lines
+
+  def print80(inlist):
+      print("\n".join(split_to_lines(inlist)))
+      return
+#+END_SRC
+
+*** Game of Life
+Write a simple =5x5= square game of life: 
+1. Any live square with fewer than two live neighbours dies, as if caused by under-population.
+2. Any live square with two or three live neighbours lives on to the next generation.
+3. Any live square with more than three live neighbours dies, as if by over-population.
+4. Any dead square with exactly three live neighbours becomes a live square, as if by reproduction.
+5. Boundaries are periodic to simulate infinite space (i.e. square at (xmax,y) has its "right" side neighbour
+   at (0,y) etc).
+
+You should write two functions: one to initialise the game and one to take a step. The initialiser should take
+the size of the game as an argument and return the state of the game. The stepper should take the current
+state as an input and return the new state.
+
+We will later use these components to visualise the game, but for now please just print "X" and " " for the
+cells or just trust your skills and ignore output completely.
+
+#+HEADER: :tangle yes :tangle "codes/python/Game_of_Life.py"
+#+HEADER: :eval never-export :noweb yes
+#+HEADER: :exports none :results output silent
+#+BEGIN_SRC python
+  import doctest
+  import numpy
+  import time
+  import datetime
+  import matplotlib
+  import matplotlib.pyplot
+  import matplotlib.animation
+
+  def initial(size=(5,5)):
+      '''Initialise the Game of Life to a random state.
+
+      Doctests
+    
+      >>> state = initial(size=(3,7))
+      >>> type(state),state.dtype,state.shape
+      (<class 'numpy.ndarray'>, dtype('int64'), (3, 7))
+      '''
+      cells = numpy.random.randint(0,2,size)
+      return cells
+
+  def step(cells):
+      '''Take one Game of Life step.
+
+      Doctests
+      >>> step(numpy.array([[1, 0, 0, 1, 1, 0, 0],[0, 0, 0, 1, 0, 0, 0],[0, 0, 0, 1, 0, 1, 1],[1, 0, 0, 0, 0, 1, 1],[0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0]]))
+      array([[0, 0, 0, 1, 1, 0, 0],
+             [0, 0, 1, 1, 0, 1, 1],
+             [1, 0, 0, 0, 0, 1, 0],
+             [1, 0, 0, 0, 1, 1, 0],
+             [0, 0, 0, 0, 0, 0, 1],
+             [0, 0, 0, 0, 0, 0, 0]])
+      '''
+      newcells = numpy.copy(cells)
+      maxx, maxy = cells.shape[0], cells.shape[1]
+      for jj in range(maxy):
+          for ii in range(maxx):
+              # rule 5 is accounted for by the modulo operators
+              # for parallel code MODULO IS EVIL
+              living_neighbours = (cells[(ii+1)%maxx,(jj+1)%maxy] +
+                                   cells[(ii+1)%maxx,(jj+0)%maxy] +
+                                   cells[(ii+1)%maxx,(jj-1)%maxy] +
+                                   cells[(ii+0)%maxx,(jj+1)%maxy] +
+                                   cells[(ii+0)%maxx,(jj-1)%maxy] +
+                                   cells[(ii-1)%maxx,(jj+1)%maxy] +
+                                   cells[(ii-1)%maxx,(jj+0)%maxy] +
+                                   cells[(ii-1)%maxx,(jj-1)%maxy]
+                                   )
+              if (cells[ii,jj] == 1):
+                  # this is a living cell
+                  if (living_neighbours < 2):
+                      # rule 1
+                      newcells[ii,jj] = 0
+                  elif (living_neighbours > 3):
+                      # rule 3
+                      newcells[ii,jj] = 0
+                  else:
+                      # rule 2 is a no-op: we are already alive
+                      pass
+              else:
+                  # this is a dead cell
+                  if (living_neighbours == 3):
+                      # rule 4
+                      newcells[ii,jj] = 1
+      return newcells
+
+  def run_game(size=(5,5)):
+      cells = initial(size)
+      print(cells)
+      starttime = datetime.datetime.utcnow()
+      while (starttime + datetime.timedelta(seconds=10) > datetime.datetime.utcnow()):
+          cells = step(cells)
+          print(cells)
+          time.sleep(0.5)
+      return
+#+END_SRC
