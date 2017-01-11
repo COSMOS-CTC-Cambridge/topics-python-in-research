@@ -154,6 +154,30 @@ def smooth(ar1):
   as constructing the monti-carlo sample set using a random walk
   generated using markov-chains.
 - 
+**Exercises
+- Not really an exercise but look at =scipy.stats=, maybe write a 
+  hypothesis test
+- Preform PCA on provided dataset (this is a fairly trivial example)
+- Write a monti-carlo algorithm that samples an N-dimensional guassian 
+  distribution
+- Write a random walker.
+- Write a model for interaction with random scatterers. In it have a particle
+  move deterministically (for instance according to newtons laws) and have
+  a periodic interaction with a second particle with properties (e.g. velocity
+  and direction) selected from a distribution function. The classic set up for
+  this would be in gravitational N-body interactions:
+  - Have a pair of point masses in which orbit each other due to Newtonian
+    Gravity. Hence they will follow Ellipses. Note these will still need to
+    be integrated forward as the time dependance is non-trivial if the orbit
+    is eccentric.
+  - Periodicaly (or better yet selected from a distribution) one of the particles
+    has an encounter with a low mass scatterer (100-1000 times lower mass works
+    well). This approaches from infinity on a hyperbolic orbit and induces the following
+    change in velocity:
+    
+  - The scatterer properties should be selected from a probability distribution.
+  - The two particles will follow a new orbit until the next scattering event occurs.
+- Sample a square (or some other finite domain) uniformly
 **Referances
 
 
