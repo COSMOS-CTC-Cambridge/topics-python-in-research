@@ -1,4 +1,4 @@
-* Stats and Monti-Carlo
+* Stats and Monte-Carlo
 ** Statistics Libraries
 - Due to there prevelance in the emperical/experimental
   sciences interpreted languages often come well equipt
@@ -50,11 +50,11 @@
   little variation in them. When compressing datasets these dimensions
   can often be dropped as there is not much information in them.
 ** FFT and Correlation
-- When developing algorithms scalability is important. This is how the
-  time taken for an algorithm to run varies with the number of datapoints.
-- Almost No algorthms scale as O(N) with most scaling with O(N^2). An example
-  of a slow algorithm is matrix inversion which is typically O(N^3), which is
-  why you should never invert matrices (numerically).
+- The time taken for an algorithm to run varies with the number of datapoints.
+  The more datapoints in the algorithm the longer it will take to run. 
+- Almost no algorithms have a completion time which scales as O(N) with most 
+  scaling  with O(N^2). An example of a slow algorithm is matrix inversion which
+  is typically O(N^3), which is why you should never invert matrices (numerically).
 - Fast Fourier Transforms is an algorithm to preform fourier transforms on
   a dataset. These are very good algorithm as it scales as O(N log N). Many
   algorthms make use of fast fourier transforms for this reason.
@@ -107,12 +107,12 @@ def smooth(ar1):
                      [1,2,1]])/16.0
   return apply_kernal(ar1,kernal)
 #+END_SRC 
-** Monti-Carlo Algorithms
-- Monti-Carlo Algorithms are used to model stocastic processes,
-  or to study large parameter spaces. A Monti-Carlo algorithm
+** Monte-Carlo Algorithms
+- Monte-Carlo Algorithms are used to model stocastic processes,
+  or to study large parameter spaces. A Monte-Carlo algorithm
   makes a number of 'draws' and samples the parameter space according
-  to a probability distribution. The advantage of a Monti-Carlo algorithm
-  over say a grid based method is a Monti-Carlo approach will concentrate
+  to a probability distribution. The advantage of a Monte-Carlo algorithm
+  over say a grid based method is a Monte-Carlo approach will concentrate
   it's sampling in regions of the parameter space with the highest
   probability
 - While it is normal to think of probability distributions in terms
@@ -134,7 +134,7 @@ def smooth(ar1):
 ** Markov-Chains
 - Markov-Chains are used when a stocastic process depends on the 
   previous state of the system. This is different from the standard
-  Monti-Carlo approach which assumes that each draw is independent.
+  Monte-Carlo approach which assumes that each draw is independent.
 - Markov-Chains can be used to compute random walks.
 - Markov-Chains obey the following recurance relation:
 
@@ -150,9 +150,9 @@ def smooth(ar1):
   3) again repeat as nessicary
 - Based on Kroese et al (2013)
 ** MCMC
-- Markov Chain Monti-Carlo (MCMC) uses Markov chains to construct
-  more effective Monti-Carlo methods. It can be loosely thought of
-  as constructing the monti-carlo sample set using a random walk
+- Markov Chain Monte-Carlo (MCMC) uses Markov chains to construct
+  more effective Monte-Carlo methods. It can be loosely thought of
+  as constructing the monte-carlo sample set using a random walk
   generated using markov-chains.
 - The general algorithm for MCMC is the Metropolis-Hastings Algorithm.
   for a probability distribution $f(x)$ known up to a normalisation 
@@ -177,9 +177,12 @@ def smooth(ar1):
 - One method of preforming MCMC on multi-dimensional datasets, particularly useful
   if the domain is disjoint is the hit and run algorithm. This can be summerised as
   follows,
-  1)
-  2)
-  3)
+  1) Start with a point X_0 in the domain.
+  2) Pick a direction (random unit vector)
+  3) Pick a step to move along that direction according
+     to a distribution function. Use the accept/reject 
+     method above.
+- MCMC tend towards the correct distirbution with large sample sizes.
 ** Exercises
 - Not really an exercise but look at =scipy.stats=, maybe write a 
   hypothesis test
