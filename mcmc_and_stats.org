@@ -42,13 +42,31 @@
   - Red and IR: Soils
   - Blue: Iron bearing minerals.
 - The basis resulting from preforming PCA on datasets is refered
-  to as the prinicpal components labeled from 1-number of dimensions
-  with PCA-1 being the dimesion with the greatest variability (i.e.
-  it's the pricipal eigenvector of the covarience matrix) 
+  to as the prinicpal components labeled from 1 to the number of 
+  dimensions with PC-1 being the dimesion with the greatest variability 
+  (i.e. it's the pricipal eigenvector of the covarience matrix) 
 - In addition it is often found for very large dimensional datasets
   that after PCA some of the resulting principal components have very
   little variation in them. When compressing datasets these dimensions
   can often be dropped as there is not much information in them.
+- The algorithm for preforming PCA is as follows,
+  1) Start with data stored as N samples of dimension M the data can be 
+     written as $X_{i j}$ where the first index denotes the sample and 
+     the second the 'observable'
+  2 ) Zero-mean the data i.e. subtract the mean of each 'observable' from
+      each variable,
+\begin{equation}
+Y_{i j} = X_{i j} - \bar{X_j}
+\end{equation}
+  3) Compute the coverience matrix of the data.This is given as,
+ \begin{equation}
+ Cov_{j k} = \frac{1}{N + 1}\Sum_1^N Y_{i j} Y_{i k}
+ \end{equation}
+  4) Solve an for the eigenvalues/vectors for $Cov_{j k}$
+  5) Order the eigenvectors according to the eigenvalues that corresponding
+     to the largest eigenvalue is the principal component 1 (PC-1). The other
+     Principle components are aranged in order of decreasing eigenvalue.
+  6) Transform the data into the new basis (i.e. take dot products).
 ** FFT and Correlation
 - The time taken for an algorithm to run varies with the number of datapoints.
   The more datapoints in the algorithm the longer it will take to run. 
