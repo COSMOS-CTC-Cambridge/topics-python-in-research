@@ -1,0 +1,218 @@
+* Stats and Monti-Carlo
+** Statistics Libraries
+- Due to there prevelance in the emperical/experimental
+  sciences interpreted languages often come well equipt
+  with statistics libraries for use in data-analysis and
+  hypothesis testing
+- Python is no exception and the main library is =scipy.stats=
+  which contains an extensive range of function for computing
+  data statistics such as,
+  - chi squared
+  - students t test
+  - moments and averages
+  - histograms
+  - common statistical distributions
+- primerilly this is here and useful, so look through it and
+  see what it has
+** Principal Component Analysis
+- Pricipal Component Analysis (PCA) is a technique in data analytics
+  used when looking at multidimensional data. The basis that a
+  dataset is stored in (normally derived from how it is measured)
+  is rarely the most useful basis for analysis, and PCA is a method 
+  of finding this.
+- Real data is often highly correlated and this correlation rarely
+  contains useful information. Preforming PCA on a dataset finds 
+  a set of uncorrelated (or minimally correlated) basis vectors 
+  which can be used to represent the data. This is formulated as
+  an eigenvalue problem on the covarence matrix of the data.
+- As an example multi-channel saterlite images contain data for
+  different wavelengh bands at each pixel typically,
+  - Blue
+  - Green
+  - Red
+  - near IR
+  - mid IR
+- The different channels are highly correlated and contain much
+  of the same information. In this instance the main contribution
+  to all of the above channels will be the absolute intensity which
+  typically corresponds to surface topology. Doing PCA on this will
+  (normally) produce the following channels,
+  - Intesity: Corresponds to topology
+  - High near IR and Green, low Red: Vegetation
+  - Red and IR: Soils
+  - Blue: Iron bearing minerals.
+- The basis resulting from preforming PCA on datasets is refered
+  to as the prinicpal components labeled from 1-number of dimensions
+  with PCA-1 being the dimesion with the greatest variability (i.e.
+  it's the pricipal eigenvector of the covarience matrix) 
+- In addition it is often found for very large dimensional datasets
+  that after PCA some of the resulting principal components have very
+  little variation in them. When compressing datasets these dimensions
+  can often be dropped as there is not much information in them.
+** FFT and Correlation
+- When developing algorithms scalability is important. This is how the
+  time taken for an algorithm to run varies with the number of datapoints.
+- Almost No algorthms scale as O(N) with most scaling with O(N^2). An example
+  of a slow algorithm is matrix inversion which is typically O(N^3), which is
+  why you should never invert matrices (numerically).
+- Fast Fourier Transforms is an algorithm to preform fourier transforms on
+  a dataset. These are very good algorithm as it scales as O(N log N). Many
+  algorthms make use of fast fourier transforms for this reason.
+- python has two implimentations of fft one in =numpy= and one in =scipy=.
+  As a break from form these two are quite different and mostly incompatible,
+  of the two (and again unusually) =numpy.fft= probably better as it has
+  more functionallity and has a slightly more sensible representation of
+  the fourier transformed arrays compared to =scipy.fftpack=. =scipy.fftpack=
+  is supposadly faster though (although it is unlikely you'll notice the
+  difference).
+- In general algorithms that preform arithmatic operations involvion multiple 
+  member of an array (as appose to preforming the operations elementwise) are 
+  generally best done with fft. 
+- Examples of algorithms which can be computed with fft,
+#+BEGIN_SRC python
+import numpy as np
+
+def driv(x):
+  return np.fft.ifft(2.0j*np.pi*np.fft.fft(x))
+#+END_SRC 
+- computes the derivative of x
+#+BEGIN_SRC python
+def correlate(ar1,ar2):
+  far1 = np.fft.fftn(ar1)
+  far2 = np.fft.fftn(ar2)
+  fconvolve = np.dot(far1,far2.conjugate().T)
+  return np.fft.ifftn(fconvolve)
+#+END_SRC
+- correlation of two (equal size) datasets
+#+BEGIN_SRC python
+def resample(x,N):
+  fx = np.fft.fft(x)
+  return np.fft.irfft(x,n=N)
+#+END_SRC
+- resampling of a dataset
+#+BEGIN_SRC python
+def apply_kernal(ar1,kernal):
+  s = ar1.shape
+  far1 = np.fft.fftn(ar1,s=s)
+  fkernal = np.fft.fftn(kernal,s=s)
+  fconvolve = far1*far2
+  return np.fft.ifftn(fconvolve)
+#+END_SRC
+- apply an image kernal to an array, which can be used to smooth
+  an image:
+#+BEGIN_SRC python
+def smooth(ar1):
+  kernal = np.array([[1,2,1],
+                     [2,4,2],
+                     [1,2,1]])/16.0
+  return apply_kernal(ar1,kernal)
+#+END_SRC 
+** Monti-Carlo Algorithms
+- Monti-Carlo Algorithms are used to model stocastic processes,
+  or to study large parameter spaces. A Monti-Carlo algorithm
+  makes a number of 'draws' and samples the parameter space according
+  to a probability distribution. The advantage of a Monti-Carlo algorithm
+  over say a grid based method is a Monti-Carlo approach will concentrate
+  it's sampling in regions of the parameter space with the highest
+  probability
+- While it is normal to think of probability distributions in terms
+  of probability density functions (for instance normal/gaussian 
+  distributions), this is less useful algorithicaly. Instead it is
+  the quantile function that is useful. A Quantile function is the
+  inverse of a cumlative distribution function. Thus a sample from
+  the parameter space can be obtained by passing a random number in
+  the range [0,1] to the quantile function.
+- The monti-carlo algorithm can be summerised as follows:
+  1) Generate a random number (or array of numbers) in the range [0-1]
+  2) Pass the number (array) to the quantile function to obtain a
+     point in the parameter space
+  3) Repeat for the required number of draws.
+  4) That's it really.
+- Once the sample set has been obtained the density of samples can be 
+  calculated to enable statistics to be calculated on the parameter
+  space.
+** Markov-Chains
+- Markov-Chains are used when a stocastic process depends on the 
+  previous state of the system. This is different from the standard
+  Monti-Carlo approach which assumes that each draw is independent.
+- Markov-Chains can be used to compute random walks.
+- Markov-Chains obey the following recurance relation:
+
+(X_{t+1}|X_u, u <= t) = (X_{t+1}|X_t)
+
+- A Markov-Chain is typically programed as follows:
+  1) Initiallise an X0 from a probability distribribution
+  2) Obtain X_{t+1} either from
+     - Draw from a conditional probability distribution
+       p(X_{t+1}|X_{t})
+     - Draw some U_{t} from a probability distribution and
+       use a recurance relation X_{t+1} = g(X_{t}|U_{t})
+  3) again repeat as nessicary
+- Based on Kroese et al (2013)
+** MCMC
+- Markov Chain Monti-Carlo (MCMC) uses Markov chains to construct
+  more effective Monti-Carlo methods. It can be loosely thought of
+  as constructing the monti-carlo sample set using a random walk
+  generated using markov-chains.
+- The general algorithm for MCMC is the Metropolis-Hastings Algorithm.
+  for a probability distribution $f(x)$ known up to a normalisation 
+  factor,
+  1) Select a proposal density q(y | x) which is used to obtain
+     a new trial sample $y$ from the previous $x$ in a similar as in
+     the Markov-Chains described above.
+  2) Initialise with some X_0
+  3) For X_t generate Y_t from q(Y_t | X_t)
+  4) calculate the acceptance probability:
+  \begin{equation}
+  \alpha(x,y) = \min \Biggl [\frac{f(y) q(x \vert y)}{f(y) q(y \vert x)}, \, 1 \Biggr]
+  \end{equation}
+  5) generate a random number $U \in [0,1]$ and obtain X_{t+1},
+  \begin{equation}
+  X_{t+1} = \begin{cases} Y \, U \leq \alpha(X_t,Y_t),\\ 
+  X_t \, \rm otherwise
+  \end{cases}
+  \end{equation}
+- Based on Kroese et al (2013)
+- Different forms of MCMC make use of different trial functions.
+- One method of preforming MCMC on multi-dimensional datasets, particularly useful
+  if the domain is disjoint is the hit and run algorithm. This can be summerised as
+  follows,
+  1)
+  2)
+  3)
+** Exercises
+- Not really an exercise but look at =scipy.stats=, maybe write a 
+  hypothesis test
+- Preform PCA on provided dataset (this is a fairly trivial example)
+- Write a monti-carlo algorithm that samples an N-dimensional guassian 
+  distribution
+- Write a random walker.
+- Write a model for interaction with random scatterers. In it have a particle
+  move deterministically (for instance according to newtons laws) and have
+  a periodic interaction with a second particle with properties (e.g. velocity
+  and direction) selected from a distribution function. The classic set up for
+  this would be in gravitational N-body interactions:
+  - Have a pair of point masses in which orbit each other due to Newtonian
+    Gravity. Hence they will follow Ellipses. Note these will still need to
+    be integrated forward as the time dependance is non-trivial if the orbit
+    is eccentric.
+  - Periodicaly (or better yet selected from a distribution) one of the particles
+    has an encounter with a low mass scatterer (100-1000 times lower mass works
+    well). This approaches from infinity on a hyperbolic orbit and induces the following
+    change in velocity in a frame moving with the particle,
+  \begin{equation}
+  \Delta V_{\parallel} = \frac{2 m_s \vert u\\vert \sin^2 (\theta)}{m_s + m_a}
+  \end{equation}
+  \begin{equation}
+  \Delta V_{\bot} =  \frac{- m_s \vert u\vert \sin{\theta}}{m_s + m_a}
+  \end{equation}
+  - Where $\Delta V_{\parallel}$ is the change in velocity parralel to the particles
+    initial motion; $\Delta V_{\bot}$ perpendicular; $m_s$ the scatterer mass; $m_a$
+    the particle mass; $u$ the scatterer velocity and $\theta$ the scattering angle of
+    the scatterer.
+  - The scatterer properties should be selected from a probability distribution.
+  - The two particles will follow a new orbit until the next scattering event occurs.
+- Sample a square (or some other finite domain) uniformly
+** Referances
+- Kroese, D.P., Taimre, T. and Botev, Z.I., 2013. Handbook of monte carlo methods (Vol. 706). John Wiley & Sons.
+

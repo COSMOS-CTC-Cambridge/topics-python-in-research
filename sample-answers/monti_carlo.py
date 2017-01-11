@@ -65,9 +65,18 @@ def metropolis_hastings(pdfunc,proposalq,proposalpdf,X0,N,pdfargs,proposalargs,n
 
   for t in range(N-1):
     y = proposalq(randval[t],X[t],*proposalargs) 
-    
-    acceptance = min((pdfunc(y,*pdfargs)*proposalpdf(X[t],y,*proposalargs))  \
-                      / (pdfunc(X[t],*pdfargs)*proposalpdf(y,X[t],*proposalargs)),1)
+
+    #print pdfunc(X[t],*pdfargs)
+    #print proposalpdf(y,X[t],*proposalargs)
+ 
+    acceptance = (pdfunc(y,*pdfargs)*np.array(proposalpdf(X[t],y,*proposalargs)))  \
+                   / (pdfunc(X[t],*pdfargs)*np.array(proposalpdf(y,X[t],*proposalargs)))
+
+    #print pdfunc(X[t],*pdfargs)
+    #print proposalpdf(y,X[t],*proposalargs)
+
+    acceptance = min(acceptance,1)
+
     if U[t] <= acceptance:
       X[t+1] = y
     else:
@@ -93,8 +102,10 @@ def hit_and_run(pdfunc,proposalq,proposalpdf,X0,N,proposalargs,pdfargs,ndim=1):
 
     #print step
     
-    acceptance = (pdfunc(y,*pdfargs)*proposalpdf(abs(step),-np.sign(step),y,*proposalargs))  \
-                      / (pdfunc(X[t],*pdfargs)*proposalpdf(abs(step),np.sign(step),X[t],*proposalargs))
+    acceptance = (pdfunc(y,*pdfargs)*np.array(proposalpdf(abs(step),-np.sign(step),y,*proposalargs)))  \
+                      / (pdfunc(X[t],*pdfargs)*np.array(proposalpdf(abs(step),np.sign(step),X[t],*proposalargs)))
+
+    #print acceptance
  
     acceptance = min(acceptance,1)
 
@@ -220,10 +231,15 @@ if __name__ == '__main__':
 
 
   def conditional_guassian(x,y,mean,sigma):
-    return gaussian(x,mean,sigma)
+    if np.max(x) > 100.0 or np.max(y) > 100.0:
+      return 0
+    elif np.min(x) < -100.0 or np.min(y) < -100.0:
+      return 0
+    else:
+      return gaussian(x-y,mean,sigma)
 
   def conditional_gqfunc(x,y,mean,sigma):
-    return gaussian_random_qfunc(x,mean,sigma)
+    return gaussian_random_qfunc(x,mean,sigma) + y
 
   def flat(x,*pargs):
     return 1.0
@@ -231,9 +247,9 @@ if __name__ == '__main__':
   def MCMC_Metropolis_Hastings():
     N = 10000
     qfargs = (np.array([0.0,0.0]),3.0)
-    X0 = np.array([0.0,0.0])
+    X0 = np.array([0.01,0.01])
     
-    X = metropolis_hastings(flat,conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0,0.0]),3.0),ndim=2)
+    X = metropolis_hastings(flat,conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0]),100.0),ndim=2)
 
     xy = np.vstack([X[:,0],X[:,1]])
     z = gaussian_kde(xy)(xy)
@@ -244,7 +260,7 @@ if __name__ == '__main__':
     plt.show()
     plt.clf()
 
-  def conditional_guassian(step,sgn,x,mean,sigma):
+  def conditional_guassian2(step,sgn,x,mean,sigma):
     #y = x - step
     if np.max(x) > 100.0:
       return 0
@@ -263,7 +279,7 @@ if __name__ == '__main__':
     qfargs = (np.array([0.0,0.0]),3.0)
     X0 = np.array([0.0,0.0])
   
-    X = hit_and_run(flat,to_scalor_conditional_gqfunc,conditional_guassian,X0,N,qfargs,(np.array([0.0]),0.1),ndim=2)
+    X = hit_and_run(flat,to_scalor_conditional_gqfunc,conditional_guassian2,X0,N,qfargs,(np.array([0.0]),0.1),ndim=2)
 
     xy = np.vstack([X[:,0],X[:,1]])
     z = gaussian_kde(xy)(xy)
