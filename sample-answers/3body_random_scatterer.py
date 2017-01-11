@@ -36,7 +36,9 @@ def scatter_recfunc(t,X_t,U):
   x0 = X_t[:2]
   v0 = X_t[2:]
 
-  deltat = 1
+  #draw U from a distribution
+  # make sure it's +ve
+  deltat = np.abs(U[4])
 
   r = itge.ode(twobody)
   r.set_initial_value(X_t, t).set_f_params(ma + mb)
@@ -49,6 +51,7 @@ def scatter_recfunc(t,X_t,U):
   us = U[:2]
   theta = U[2]
   impact_angle = U[3]
+  
   u = us - va
   absu = np.sqrt(np.sum(u**2))
 
@@ -77,7 +80,7 @@ def radom_scatter_problem():
 
   X0 = np.array([10.0,0.0,0.0,v0])
 
-  qfargs=(np.array([v0,v0,np.pi/4.0,0.0]),np.array([1.0,1.0,1.0,1.0]))
+  qfargs=(np.array([v0,v0,np.pi/4.0,0.0,1.0]),np.array([1.0,1.0,1.0,1.0,1.0]))
 
   X = mc.markov_chain_recurance(scatter_recfunc,mc.gaussian_random_qfunc,X0,N,qfargs,ndim=4)
 
