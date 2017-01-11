@@ -18,12 +18,18 @@ n = data.shape[0]
 blues = data[data[:,7]<0]
 reds = data[data[:,7]>0]
 greens=data[numpy.logical_not(numpy.logical_or(data[:,7]<0,data[:,7]>0))]
-ax.scatter(blues[:,0], blues[:,1], blues[:,2], c="b", edgecolors="face", marker="o", s=blues[:,6])
-ax.scatter(reds[:,0], reds[:,1], reds[:,2], c="r", edgecolors="face", marker="o", s=greens[:,6])
-ax.scatter(greens[:,0], greens[:,1], greens[:,2], c="g", edgecolors="face", marker="o", s=greens[:,6])
-ax.quiver(blues[:,0], blues[:,1], blues[:,2], blues[:,3], blues[:,4], blues[:,5], pivot="tail")
-ax.quiver(reds[:,0], reds[:,1], reds[:,2], reds[:,3], reds[:,4], reds[:,5], pivot="middle")
-ax.quiver(greens[:,0], greens[:,1], greens[:,2], greens[:,3], greens[:,4], greens[:,5], pivot="tip")
+ax.scatter(blues[:,0], blues[:,1], blues[:,2], c="b", edgecolors="face",
+           marker="o", s=blues[:,6])
+ax.scatter(reds[:,0], reds[:,1], reds[:,2], c="r", edgecolors="face",
+           marker="o", s=greens[:,6])
+ax.scatter(greens[:,0], greens[:,1], greens[:,2], c="g", edgecolors="face",
+           marker="o", s=greens[:,6])
+ax.quiver(blues[:,0], blues[:,1], blues[:,2], blues[:,3], blues[:,4],
+          blues[:,5], pivot="tail")
+ax.quiver(reds[:,0], reds[:,1], reds[:,2], reds[:,3], reds[:,4],
+          reds[:,5], pivot="middle")
+ax.quiver(greens[:,0], greens[:,1], greens[:,2], greens[:,3], greens[:,4],
+          greens[:,5], pivot="tip")
 ax.set_xlabel('X Label')
 ax.set_ylabel('Y Label')
 ax.set_zlabel('Z Label')
