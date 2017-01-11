@@ -277,15 +277,15 @@ if __name__ == '__main__':
 
   #Tests
 
-  basic_gaussian_monti_carlo()
+  #basic_gaussian_monti_carlo()
 
-  gaussian_random_walk()
+  #gaussian_random_walk()
 
-  radom_scatter_problem()
+  #radom_scatter_problem()
 
   MCMC_Metropolis_Hastings()
 
-  MCMC_Hit_and_Run()
+  #MCMC_Hit_and_Run()
   
 
 
