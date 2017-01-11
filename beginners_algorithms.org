@@ -26,6 +26,7 @@
    - correlation functions? (FFT)
    - principal component analysis?
 * MCMC
+
 * Non-linear PDE?
 * FEM?
 * Integration!?!
