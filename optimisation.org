@@ -1,0 +1,27 @@
+* Numerical Optimisation
+Suppose we have a functional $F$ and function $G$ defined as follows.
+\begin{equation}
+F[f] = \int_D \mathcal{L} dx 
+\end{equation}
+where the integration is over any domain $D$, multidimensional or not, infinite or not. \(\mathcal{L}\) is a
+function of \(f(x)\) and its derivatives, but not directly of $x$. Typically there will not be any mixed
+derivatives or derivatives of order higher than 2.
+
+#+BEGIN_EXPORT latex :exports code :results value latex
+\begin{equation}
+G[g] = \sum_(i \in E) g_i
+\end{equation}
+#+END_EXPORT
+where $g_i$ can also be thought of samples of some function at points $i$, i.e. \(g_i = g(x_i)\). 
+
+We need to find $f$ ($g$) such that it (locally) minimises (or maximises) $F$ ($G$). Typically infinities in
+the domain can be cut off numerically, but obviously $f$ will then need to approach zero quickly enough
+to ensure this does not cause too big errors.
+
+If $D$ is not a nice rectangular subset of \(\mathbb{R}^N\), the approach introduced is not very good: one
+would need to embed $f$ into a rectangular domain and require \(f(x \ni D) = 0\), but this can lead to a very
+complicated code or a code which spends most of its time adding together billions of zeros. A better approach
+in these cases is to use a more sophisticated discretisation method, like the finite element method (FEM). A very
+good FEM library with a natural python interface is [[https://fenicsproject.org][FEniCS]], Its python binding should be installable by =pip
+install fenics= but be warned: it requires a large number of dependencies some of which =pip= may not be able
+to install for you if you do not have them.
