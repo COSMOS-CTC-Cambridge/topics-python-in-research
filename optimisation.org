@@ -25,3 +25,39 @@ in these cases is to use a more sophisticated discretisation method, like the fi
 good FEM library with a natural python interface is [[https://fenicsproject.org][FEniCS]], Its python binding should be installable by =pip
 install fenics= but be warned: it requires a large number of dependencies some of which =pip= may not be able
 to install for you if you do not have them.
+
+** Finite Differences
+The simplest way of dealing with \(F\) is to write a finite difference approximation, where one replaces
+differentials and integrals with their definitions without the \(\lim\), i.e.
+\begin{equation}
+\frac{df(x)}{dx} \to \frac{f(x+h)-f(x-h)}{2h}\\
+\int_D f(x) dx \to \sum_{x \in D'} f(x) h.
+\end{equation}
+As an example, suppose \(\mathcal{L} = f'(x)^2/2 - \cos(f)\), so we can compute the Euler-Lagrange equation
+of \(F[f]\):
+\begin{align}
+0 &= \frac{d}{dx} \frac{d\mathcal{L}}{d f'} - \frac{d\mathcal{L}}{df} \\
+  &= f''(x) - \sin(f),
+\end{align}
+which is the (familiar?) sine-Gordon equation. Assuming boundary conditions \(f(-\infty)=0\) and
+\(f(\infty)=2\pi\), it has a solution
+\begin{align}
+f(x) = 4 \arctan(\exp^{x-a}),
+\end{align}
+where \(a\) is a free integration constant (location of the peak of our soliton) but the other integration
+constant was determined from the boundary conditions.
+
+We want to find this numerically, using finite difference approximation. We will need to discretise the
+objective function \(F[f]\). The discrete version of \(F[f]\) will have the form of \(G[g]\) and any sensible
+algorithm will take advantage of either the Euler-Lagrange equation or the gradient (with respect to
+\(g_i\)) of \(G[g]\). On the continuum (\(h \to 0\)) limit these will be equivalent, but numerically there are
+subtle differences: using the Euler-Lagrange equation is slightly simpler to implement, but on the other hand
+it only works in a case where you have \(\mathcal{L}\). Using the gradient of \(G[g]\) is slightly more
+generic but even that will of course fail if \(G[g]\) is not differentiable. In this case, some sort of
+regularisation is necessary.
+
+There are also algorithms that do not use gradient information, but they are generally very slow. However,
+they are also able to find a global minimum unlike gradient based methods which simply find the "closest"
+local minimum which either is or is not a global minimum. Two of the most commonly used such algorithms are
+/simulated annealing/ and /genetic algorithm/.
+
