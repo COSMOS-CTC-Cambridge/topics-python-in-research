@@ -37,7 +37,7 @@
   to all of the above channels will be the absolute intensity which
   typically corresponds to surface topology. Doing PCA on this will
   (normally) produce the following channels,
-  - Intesity: Corresponds to topology
+  - Intesity: Corresponds to topography
   - High near IR and Green, low Red: Vegetation
   - Red and IR: Soils
   - Blue: Iron bearing minerals.
