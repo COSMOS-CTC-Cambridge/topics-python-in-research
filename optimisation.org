@@ -1,11 +1,9 @@
 * Numerical Optimisation
 Suppose we have a functional $F$ and function $G$ defined as follows.
-#+BEGIN_EXPORT latex
 \begin{align}
 F[f] = \int_D \mathcal{L}(f, f_{x_1}, f_{x_2}, \ldots, f_{x_n}, f_{x_1 x_1}, \ldots) d^n x \label{eq:basic_continuum}\\
 G[g] = G(g_i|i \in \mathcal{I}) \label{eq:basic_discrete}
 \end{equation}
-#+END_EXPORT
 where the integration is over any domain $D$, multidimensional or not, infinite or not. \(\mathcal{L}\) is a
 function of \(f(x)\) and its derivatives, but not directly of $x$. Typically there will not be any mixed
 derivatives or derivatives of order higher than 2 in \(\mathcal{L}\).
@@ -258,7 +256,7 @@ A way of doing this using the conjugate gradient or variable metric algorithms w
           gradx, grady = 4*b*x**3-4*b*y*x+2*x-2*a, -2*b*x**2+2*b*y
           return numpy.array([gradx,grady])
       def plot(self, state):
-          matplotlib.pyplot.gcf()
+          matplotlib.pyplot.figure()
           matplotlib.pyplot.clf()
           x,y = state
           a,b = self.a, self.b
