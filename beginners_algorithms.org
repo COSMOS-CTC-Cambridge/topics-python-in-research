@@ -22,11 +22,13 @@
    - have them code a linear one
    - Krylov?
 * Statistics
-   - of a dataset
-   - correlation functions? (FFT)
-   - principal component analysis?
+   - of a dataset, can just point to scipy.stat + make use of data io
+   - correlation functions? (FFT) 
+   - principal component analysis? 
 * MCMC
-
+   - 2D gaussian distribution 
+   - Random walk
+   - orbital motion with random three body encounters.
 * Non-linear PDE?
 * FEM?
 * Integration!?!
