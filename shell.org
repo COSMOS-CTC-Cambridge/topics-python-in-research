@@ -359,9 +359,282 @@ find exampledirectory12 -name 'example*1' -print0 |xargs -0 ls -l
   start it.
 *** Further resources
     [[link][here for example]]
+    
+** Version Control and Git
+- When collaborating on a project, or when producing any substansive
+  code independantly version control is normally invaluable. Version control
+  software saves the changes you make to code meaning if you accidently 
+  delete something or introduce a fatal bug the code can be reverted to
+  a previous state prior to this occuring. Good (specifically modern) version
+  control software also makes it easy to have multiple versions of a code,
+  so that several people can work on the same program and even the same file.
+  The version control software makes it easier to merge in the different code
+  that people have produced and provides tools to deal with sitations when two
+  versions of the code conflict (although if your using svn you might as well
+  give up because it's horrible).
+- There are many programs to do version control (in fact google docs/Of**e 360
+  have a primitive forms of it) the one covered here is =git= as it's probably
+  the most useful/common one. Another important version control software worth
+  mentioning is =svn= as a lot of scientific software is distributed using it.
+  =svn= is an older version control software and is good at version control, 
+  however it is fairly hopeless at dealing with collaborative projects (apperently
+  modern svn is a bit better, but that's rarely what people use).
+- Code in git is organised into repositories, which are self contained projects/
+  programs. Within a repository there can be many branches, which are copies of
+  the code with different histories. Typically a repository has a master branch
+  which contains the code that is used and development/hotfix branches which are
+  used to add new features/fix bugs without breaking the code in the master branch.
+- When dealing with collabortive projects there are various philosopies of how the
+  project ought to be structured, but we won't go into it here. 
+- To obtain a copy of a repositroy (say the repository this course is stored in)
+  use:
+#+BEGIN_SRC bash  
+git clone <project url>
+#+END_SRC
+- for this course specifically
+#+BEGIN_SRC bash
+git clone https://github.com/juhaj/topics-python-in-research
+#+END_SRC   
+- From now on we will be using a clone of the repository of this course to demostrate
+  how =git= works.
+- While you can safely edit the repository you have just obtained a copy of, it's good
+  practice to create a new branch for your changes in case you do something stupid,
+#+BEGIN_SRC bash
+git checkout -b 'dev-newbranch' 
+#+END_SRC
+- which creates and switches to a new branch, in this case called =dev-newbranch=
+  (although you can call yours what you like so long as you don't put bloody spaces
+  in it). The = -b= is there to create a new branch and isn't required to checkout
+  an existing one.
+- Now open a file editor and write a new file in the main directory (alternately
+  if you are lazy do =touch newfile.txt=). How do we add this file to version control?
+#+BEGIN_SRC bash
+git add newfile.txt
+#+END_SRC
+- tells git that =newfile.txt= should be staged for commit. This has to be done each
+  time you change the file as git will not commit changes if you haven't added them 
+  yet. We could continue making changes and adding them as above until we are ready
+  to preform a commit. Each commit is a snapshot of the branch at a given moment, and
+  you can go back to a previous commit if you make a mistake. They are also important
+  if two people are working on the same project. To commit the changes do,
+#+BEGIN_SRC bash
+git commit -m 'added newfile.txt as test'
+#+END_SRC
+- The = -m 'added newfile.txt as test' = is unnessicary, it's just a message that goes
+  with the commit to explain the changes made.
+- Say you broke the code and can't figure out how to fix it or deleted something important,
+  to go back to a previous, first look at a list of the previous commit with,
+#+BEGIN_SRC bash
+git log --oneline
+#+END_SRC
+- you should see the commit you have just made with the message you just wrote, there 
+  will also be a sequence of numbers and letters which is the revision id. There will
+  be a list of revisions with commit messages which preceded your change. Copy the id
+  of the commit prior to yours and do,
+#+BEGIN_SRC bash
+git checkout <previous-revision-id>
+#+END_SRC
+- This will checkout the previous commit before you made your changes. To revert the
+  changes, first go back to the current commit (=git checkout 'dev-newbranch'=) then
+  call:
+#+BEGIN_SRC bash
+git revert <previous-revision-id>
+#+END_SRC
 ** The Compiler
-- what is it
-- why need one
+- While some code (e.g. the shell commands used today and python introduced 
+  tomorrow) can be run line by line, others must be compiled first. A compiler
+  takes the code you write and rewrites it in machine code, a set of machine readable
+  commands which are what the computer actually carries out. 
+- For shell/python this is done on the fly with each line of code read, converted to 
+  machine code and executed in turn, such languages called interpeted languages. 
+- The other class of languages are the compiled languages such as c/c++/Fortran. 
+  Code written in a compiled language cannot be run, instead the code must be
+  compiled to an executable with an appropriate compiler. The executable is a 
+  binary file which has been written from the original file and can now be run.
+
+  | Language | Compiler   |
+  |----------+------------|
+  | c        | =gcc=      |
+  | c++      | =g++=      |
+  | fortran  | =gfortran= |
+  | java     | =javac=    |
+
+- There are multiple compilers for a given language =gcc= , =g++= and =gfortran=
+  are GNU compilers and are most commonly used on Linux.
+- Code can be compiled to different types of binary files which have different 
+  purposes. There is often different types of code file in a language to deal
+  with class/function decleration and writting libraries of common functions/classes.
+- Object files are the result of compiling a single executable. Multiple object
+  files can be combined to produced executables or shared libraries.
+- Executables are files which can be run, i.e. they are the programs actually
+  used by the user.
+- Shared Libraries (Which go under various different names dependent on how the
+  seperate objects are linked) are files which combine a number of object files
+  and enable these to be imported into a program. Most programs (and indeed many
+  libraries) make use of shared libraries so that existing functionality isn't
+  duplicated. For instance a program written to solve computational fluid 
+  dynamics will normally need to include a solver for systems of linear equations.
+  Instead of rewritting this functionality from sratch the code will make use 
+  of a shared library where the solver has been implimented (In this case BLAS/
+  LAPACK).
+- For c code the above files can be produced in the following way with =gcc=
+#+BEGIN_SRC bash
+gcc -c code.c
+#+END_SRC
+- produces an object
+#+BEGIN_SRC bash
+gcc -shared -o libcode.so code1.o code2.o
+#+END_SRC
+- produces a shared library from =code1.o= and =code2.o=. Note this is not the only
+  type of library for instance files ending in =.dylib= and =.a= are also types of
+  library but are used in different ways.
+#+BEGIN_SRC bash
+gcc -o program code.c
+#+END_SRC
+- produces an executable =program= from =code.c=. This executable can be run by
+  typing =./program= into the directory containing the executable and presumably
+  does useful things (prints hello world, solves a maths problem, breaks your 
+  computer etc).
+- Fortran and c++ can be compiled in a similar way using =gfortran= and =g++=.
+- Compiled languages need to know the type of variables/functions used in 
+  the code. So when code from a shared library or object is used in a file,
+  that file needs to declare the functions/class etc used. These are done in
+  seperate files which contain only the declerations of the functions/classes
+  in the linked library/object and crucially should not contain implimentation.
+  The compiler appends these to the start of the file before compilation, hence 
+  in c/c++ these are termed header files and have the suffix =.h= / =.hpp= .
+  Fortran has a related file called a module file, however these do contain
+  the implimentation and are also compiled to probuce objects.
+- In general a program consisting of multiple objects/headers is,
+#+BEGIN_SRC bash
+g++ -I /headerfile/dir -L /library/dir -llibrary -o outputfilename
+#+END_SRC
+
+*** What is the Compiler Doing?
+- So what exactly does the compiler do? Say we have a simple piece of 
+  c code that adds 1 to an integer in a for loop,
+  
+#+BEGIN_SRC c
+int i, count, n;
+n = 10;
+for (i=0;i++;i<n)
+{
+  count++;
+}
+#+END_SRC
+
+- This cannot be understood by the computer and must be rewritten by the
+   Computer as,
+   
+#+BEGIN_SRC asm
+        MOV r0,#0
+        MOV r1,#0
+        MOV r2,#0
+        MOV r2,#10
+
+loop    ADD r0,#1
+        ADD r1,#1
+        CMP r1,r2
+        BNE loop
+#+END_SRC
+
+- In fact the above isn't machine code, but Assembly. However these are 
+  the commands the computer is actually carrying out and has a one-to-one
+  corrispondance with machine code, which is effectively the above written
+  in hexadecimal. It is worth pointing out that the above is hardware 
+  dependent and for a different computer, particularly if the chip is by a
+  different manufacturer, the output of the compiler will be completely
+  different due to the different chip achitecture.
+  
+
+*** Makefile and Instulation On Unix 
+- While compiling a single file can be done effectively with just a compiler, 
+  compiling an entire program takes a long time if it has to be done in one
+  go. In addition different computers have different architectures and often
+  store common libraries in different places. Thus most programs on linux 
+  (That aren't obtain directly as binary files), are installed using a configure
+  script and a makefile. 
+- A makefile is a sequence of dependent instructions. Say you had a program which
+  was split into two files =main.cpp= which contains the main program and 
+  =another_file.cpp= which contains a lot of function definitions which are used
+  by =main.cpp=. Using the method described above this can be compiled by running
+  the following set of commands,
+  
+#+BEGIN_SRC bash
+g++ -c another_file.cpp
+g++ -c main.cpp
+g++ -o executable main.o another_file.o
+#+END_SRC
+
+- This could be written in a script and run each time =main.cpp= or =another_file.cpp=
+  was modified. However this has the issue that if one of the files is modified both
+  are recompiled, even though the other hasn't changed. For a large progam consising
+  of ~100 files it becomes prohibative to recompile all of them when a small change
+  may have been made to a single file. This is where makefiles come in, written as a
+  makefile the above is,
+
+#+BEGIN_SRC ob-makefile.el
+executable: main.o another_file.o
+  g++ -o executable main.o another_file.o
+
+main.o: main.cpp
+  g++ -c main.cpp
+  
+another_file.o: another_file.cpp
+  g++ -c another_file.cpp
+#+END_SRC
+
+- Running this script causes only the files that have been modified, and any files which 
+  depend on them, to be compiled. Thus if =main.cpp= is changed running the makefile will
+  result in the following commands being executed,
+
+#+BEGIN_SRC bash
+g++ -c main.cpp
+g++ -o executable main.o another_file.o
+#+END_SRC
+
+- As can be seen in this instance the script does not recompile =another_file.cpp= as it
+  has not changed in any way.
+  
+- When compiling a program the compiler needs to know where the libraries which the
+  program is dependant on are stored. This is done with a configure script which 
+  writes the approriate makefile for the operating system, arcitecture, and file system
+  that the program is being installed on. Many programs on Linux are (or can be) installed
+  from the source code and this is done as follows,
+  
+#+BEGIN_SRC bash
+./configure
+#+END_SRC
+- Finds all the programs dependancies and writes the appropriate makefile
+#+BEGIN_SRC bash
+make
+#+END_SRC
+- Compiles the code to object files and links them to create a shared library or executable
+#+BEGIN_SRC bash
+make install
+#+END_SRC
+- Copies the resultant shared libraries/executables to somewhere appropriate in the
+  file system so they can be easilly acessed. For instance executables could be copied
+  to "/bin" where they are in the system path an can be thus called be simply typing
+  the name of the executable from any directory.
+
 - examples, with last one taking forever to compile because the file
   is so big (but no -ipo as that will take long even with modular
   code): how to sort that out
+  
+** Appendix I: Key Commands
+  | =ls= | list the contents of the current directory |
+  | =cd= | changes the directory to that specified, i.e. =cd subdir= changes to subdir |
+  | =cp= / =mv= | copy/mv a file or directory (needs -r for cp) to specified location |
+  | =rm= | removes a file/directory (with -r) |
+  | =mkdir= | creates a new directory |
+  | =ssh= | log into a remote machine |
+  | =scp= / =rsync= | copies files from a remote machine. =rsync= should be prefered |
+  | =echo= | prints a variable to screen |
+  | =git= | version control software (not the only one) |
+  | =chmod= | changes the permisions (who can read/modify/execute) on a file |
+  | =sed= / =grep= / =awk= | file search and manipulation commands, (see their man pages) |
+  | =man= | brings up the manual for a given command, can often also be done by appending =--help= to the command |
+  
+*** For Mac:
+  | =open= | opens a file with whichever program has been set up as the default for that file (e.g. =open a.pdf= opens a pdf in the default pdf viewer) |
