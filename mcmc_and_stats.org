@@ -183,7 +183,7 @@ def smooth(ar1):
   3) For X_t generate Y_t from q(Y_t | X_t)
   4) calculate the acceptance probability:
   \begin{equation}
-  \alpha(x,y) = \min \Biggl [\frac{f(y) q(x \vert y)}{f(y) q(y \vert x)}, \, 1 \Biggr]
+  \alpha(x,y) = \min \Biggl [\frac{f(y) q(x \vert y)}{f(x) q(y \vert x)}, \, 1 \Biggr]
   \end{equation}
   5) generate a random number $U \in [0,1]$ and obtain X_{t+1},
   \begin{equation}
@@ -223,7 +223,7 @@ def smooth(ar1):
     well). This approaches from infinity on a hyperbolic orbit and induces the following
     change in velocity in a frame moving with the particle,
   \begin{equation}
-  \Delta V_{\parallel} = \frac{2 m_s \vert u\\vert \sin^2 (\theta)}{m_s + m_a}
+  \Delta V_{\parallel} = \frac{2 m_s \vert u\vert \sin^2 (\theta)}{m_s + m_a}
   \end{equation}
   \begin{equation}
   \Delta V_{\bot} =  \frac{- m_s \vert u\vert \sin{\theta}}{m_s + m_a}
