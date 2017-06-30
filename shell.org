@@ -229,7 +229,7 @@ ls i_do_not_exist examplefile1 1>/dev/null 2>&1 | grep file
 #+BEGIN_SRC bash
 ls -la
 #+END_SRC
-- Careful! Prmissions on directory control new file creation and
+- Careful! Permissions on directory control new file creation and
   deletion, so can "steal" files! (Just demonstrating the sequence,
   the original file is already owned by the training user.)
 #+BEGIN_SRC bash
